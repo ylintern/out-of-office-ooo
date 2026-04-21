@@ -37,7 +37,7 @@ const TEMPLATES = [
   { label: "WC Pago", duration: 0.25, start: 11 },
 ];
 
-export default function CalendarPage() {
+function CalendarPage() {
   const [blocks, setBlocks] = useState<Block[]>(SEED);
   const [day, setDay] = useState(0);
 
