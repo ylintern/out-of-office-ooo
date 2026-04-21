@@ -41,13 +41,19 @@ export const Route = createRootRoute({
         content:
           "Calendário invertido, missões sagradas e a arte de evitar trabalho com classe. Bart ensina-te durante 100 anos.",
       },
-      { property: "og:title", content: "$OOO — Out of Office" },
+      { property: "og:title", content: "$OOO — Out of Office | A app de Bartholomew, o Lich Corporate" },
       {
         property: "og:description",
         content: "Descansar é resistência. Bartholomew, o lich corporate, mostra-te como.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "$OOO — Out of Office | A app de Bartholomew, o Lich Corporate" },
+      { name: "description", content: "$OOO - Out of Office is a PWA that gamifies work breaks and celebrates time off." },
+      { property: "og:description", content: "$OOO - Out of Office is a PWA that gamifies work breaks and celebrates time off." },
+      { name: "twitter:description", content: "$OOO - Out of Office is a PWA that gamifies work breaks and celebrates time off." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/54c3da19-fa03-4dd7-8628-84ea90088bae/id-preview-3c1f526f--36e3f278-cd1f-4a57-9a6b-85fb85df650d.lovable.app-1776801447751.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/54c3da19-fa03-4dd7-8628-84ea90088bae/id-preview-3c1f526f--36e3f278-cd1f-4a57-9a6b-85fb85df650d.lovable.app-1776801447751.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
