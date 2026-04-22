@@ -32,13 +32,14 @@ type Props = {
 export function MissionOverlay({ mission, onClose }: Props) {
   const [seconds, setSeconds] = useState(0);
   const [done, setDone] = useState(false);
-  const [hourlyRate] = useState(() => loadStats().hourlyRate);
+  const [hourlyRate, setHourlyRate] = useState(14);
   const [quoteIndex] = useState(() => MISSIONS.findIndex((item) => item.id === mission.id) % VIRAL_QUOTES.length);
   const startedAt = useRef<number | null>(null);
   const targetSeconds = mission.defaultMinutes * 60;
   const Icon = iconMap[mission.icon];
 
   useEffect(() => {
+    setHourlyRate(loadStats().hourlyRate);
     startedAt.current = Date.now();
     triggerHaptic("launch");
     playBell(560, 0.6);

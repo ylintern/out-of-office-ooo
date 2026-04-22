@@ -15,11 +15,13 @@ export const Route = createFileRoute("/")({
 });
 
 function TodayPage() {
-  const [stats, setStats] = useState(() => loadStats());
+  const [stats, setStats] = useState({ hourlyRate: 14, lichPoints: 0, lifetimeEuros: 0, lifetimeSeconds: 0, unlockedLessons: 4, completedMissions: 0, installDate: "2026-04-22T00:00:00.000Z" });
   const [now, setNow] = useState<Date | null>(null);
-  const [hourlyInput, setHourlyInput] = useState(() => String(loadStats().hourlyRate));
+  const [hourlyInput, setHourlyInput] = useState("14");
 
   useEffect(() => {
+    setStats(loadStats());
+    setHourlyInput(String(loadStats().hourlyRate));
     const update = () => setNow(new Date());
     update();
     const id = window.setInterval(update, 1000);
