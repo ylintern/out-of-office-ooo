@@ -1,81 +1,166 @@
 
-# $OOO — Out of Office: a app do Bartholomew, o Lich Corporate
+# UI/UX Reboot Plan for $OOO
 
-Uma PWA mobile-first que celebra o absurdo de evitar trabalho com classe. Calendário invertido, notificações sagradas, e a lore meme de $OOO na inkchain. Bartholomew, o lich de fato e gravata, ensina-te durante 100 anos as artimanhas corporate.
+## Goal
+Transform the current prototype into a much sharper product experience: premium, weird, darkly funny, motion-rich, and clearly intentional. Keep the absurd corporate satire, but upgrade the visual language, interaction quality, copywriting, mascot system, and tactile feel.
 
-## Identidade visual
-- **Estética híbrida "Lich Corporate × Degen"**: paleta verde-necromante + verde-terminal, dourado decadente, preto Outlook, vermelho candle. Tipografia: serif gótica para o Bart, mono tipo Bloomberg para o ticker, sans corporate para UI.
-- Hora de trabalho (9h–17h): UI mais "Outlook fingido", cinzentos sérios.
-- Pós-17h: vira degen — ticker pisca, candles, confetes, "MARKET OPEN".
-- Mascote: Bartholomew — caveira de lich com gravata, café e um Outlook aberto.
+## What will change
 
-## Estrutura de rotas (TanStack)
-- `/` — **Hoje (Inverted Calendar)**: o teu dia, mas só os blocos de tempo livre é que contam. Mostra próximas "missões sagradas" (almoço, WC pago, 17h liberation), botão "Iniciar modo X", contador ao vivo de €€ ganhos a fingir.
-- `/calendar` — **Calendário invertido semanal/mensal**: blocos a verde = livre celebrado, blocos a cinza = "tempo desperdiçado a trabalhar". Adicionas eventos como "Tarde livre", "Reunião fantasma", "Café estendido".
-- `/missions` — **Missões diárias / Status Modes**: Almoço Sagrado, WC Pago, Café Estendido, Reunião Fantasma, Deep Focus Falso, Doctor's Note. Cada uma tem timer, mensagem épica de início e mensagem viral de fim.
-- `/academy` — **Bart Academy ("Como ser mais Bart")**: 100 lições desbloqueáveis, uma por dia. Meias-verdades corporate ("Marca sempre um meeting às 16h45 para ninguém te marcar nada às 17h"). Sistema de XP "Lich Points".
-- `/ticker` — **$OOO Lore + Inkchain**: página meme com o ticker $OOO falso, gráfico de "produtividade a cair = preço a subir", whitepaper paródia, lore do Bartholomew, manifesto, botão de partilha.
-- `/share/[id]` — **Cards partilháveis** gerados das tuas conquistas ("Hoje o meu patrão pagou-me €4.27 de paz na casa de banho").
+### 1. Brand and visual system overhaul
+- Replace the current green/gold “lich terminal” palette with a new core system:
+  - White Pearl for elevated surfaces and readable contrast accents
+  - Obsidian Charcoal for base backgrounds and chrome
+  - Inkchain Purple as the primary brand accent
+- Rebuild semantic tokens in `src/styles.css` so every screen inherits the new identity consistently.
+- Shift the mascot direction from “lich corporate” to the attached purple meme character:
+  - more expressive
+  - cleaner
+  - more viral/meme-ready
+  - less fantasy, more internet-native brand character
+- Tighten typography hierarchy so the app feels editorial and premium rather than novelty-first.
 
-## Funcionalidades core (full absurdo)
+### 2. Iconography upgrade: remove emojis completely
+- Replace all mission emojis, market badges, and quick-action markers with proper iconography.
+- Use a consistent icon language across:
+  - mission cards
+  - bottom navigation
+  - calendar states
+  - ticker signals
+  - stats
+  - notifications and status banners
+- Keep tone absurd through naming/copy, not through low-tier emoji decoration.
 
-### 1. Inverted Calendar
-- Adicionas eventos com tipo: 🟢 Livre Celebrado / ⚫ Trabalho (cinza, esmagado, pequeno).
-- Vista diária/semanal onde o tempo livre ocupa visualmente mais espaço que o trabalho.
-- Templates rápidos: "Tarde livre estratégica", "Sexta-fantasma", "Reunião que cancelei na minha cabeça".
+### 3. Home screen redesign
+- Rework `/` into a high-impact command center instead of stacked cards.
+- New structure:
+  - hero status with mascot + live state
+  - “next sacred moments” timeline
+  - daily peace-earned dashboard
+  - mission launcher rail
+  - Bart tip of the day
+  - subtle live ambient states based on work hours vs post-17h freedom mode
+- Improve scannability, spacing, hierarchy, and visual rhythm.
 
-### 2. Status Modes (sagrados, fullscreen overlay)
-Quando ativas um modo, a app entra em **fullscreen dramático** com som + vibração:
-- 🍝 **Almoço Sagrado** (60min) — "ALMOÇO. NINGUÉM TE PODE INTERROMPER. ISTO É LEI." Bloqueia tudo. Final: "Voltaste mais forte. O patrão não percebeu."
-- 🚽 **WC Pago** (5min default, ajustável) — Contador €€ ao vivo do "que o teu patrão acabou de pagar pela tua paz". Final: "Parabéns. €2.14 de paz adquiridos. O capitalismo perdeu."
-- ☕ **Café Estendido** (15min) — "Estás tecnicamente disponível. Tecnicamente."
-- 👻 **Reunião Fantasma** (30–90min) — bloqueia o calendário com uma reunião falsa partilhável.
-- 🎯 **Deep Focus Falso** — status "a focar" enquanto vês memes.
-- 🤧 **Doctor's Note** — gera screenshot de "atestado" paródia.
+### 4. Calendar UX redesign
+- Rebuild `/calendar` around a more premium inverted-calendar experience:
+  - stronger day switching
+  - richer block visuals
+  - better differentiation between “free” and “work”
+  - more interactive templates
+  - clearer legend and summaries
+- Make free-time blocks feel celebratory and physically larger without looking crude.
+- Add smarter microinteractions:
+  - pressed states
+  - animated insertion of blocks
+  - selection feedback
+  - subtle transitions between days
+- Remove visual clutter and make the calendar feel like the main product, not a demo widget.
 
-### 3. Notificações híbridas
-- **In-app sempre**: overlay fullscreen + som + vibração para cada missão.
-- **Push opcional (PWA)**: pede permissão, agenda notificações via `Notification API` quando a aba está em background.
-  - 12:30 — "🍝 Almoço sagrado em 30min. Prepara a alma."
-  - 15:00 — "💰 Hora do WC pago. Vai buscar o teu salário em paz."
-  - **17:00 — "⏰ CHEGOU A HORA. O dia começa AGORA. Sai do trabalho e NÃO OLHES PARA TRÁS."**
-  - Sextas 16h — "🎉 Pré-fim-de-semana. Já podes mentalmente sair."
-- Avisos do Bart: 2x/dia uma "lição" pop-up.
+### 5. Missions experience redesign
+- Rework `/missions` into a high-energy control room.
+- Each mission card will get:
+  - unique icon
+  - stronger visual identity
+  - richer supporting copy
+  - better information hierarchy
+  - more tactile pressed/hover states
+- Upgrade `MissionOverlay` into a cinematic fullscreen ritual:
+  - stronger countdown treatment
+  - layered motion
+  - better progress visuals
+  - improved completion state
+  - more premium CTA styles
+- Add better haptic orchestration and sound timing hooks using existing browser-safe capabilities.
 
-### 4. Contador de Paz Adquirida (€€)
-- Define salário/hora opcional → app calcula em tempo real quanto €€ "roubas-te ao patrão com classe" durante cada missão.
-- Total diário, semanal, mensal, lifetime. Card partilhável.
+### 6. Academy redesign
+- Make `/academy` feel like a real progression system:
+  - stronger rank visualization
+  - more readable lesson list
+  - locked/unlocked states with better affordance
+  - more satisfying unlock interaction
+- Improve the tone of lessons so they feel more quotable, screenshot-worthy, and sharable.
 
-### 5. Bart Academy (100 lições)
-- Uma lição/dia desbloqueada. Meias-verdades absurdas:
-  - "Lição #7: Responde a emails às 8h59 e às 17h01. Parecerás incansável."
-  - "Lição #23: Marca sempre 'focus time' no calendário. Ninguém ousa quebrá-lo."
-  - "Lição #41: 'Estou a sincronizar' não significa nada. Usa-o."
-- Sistema de XP "Lich Points" → ranks: Estagiário → Office Drone → Senior Slacker → Bart Apprentice → **Lich CEO**.
+### 7. Ticker page redesign
+- Rework `/ticker` into a stronger meme-finance artifact.
+- Improve:
+  - market card styling
+  - chart presentation
+  - manifesto layout
+  - whitepaper parody section
+  - share/mint CTA styling
+- Use motion and typography to make it feel closer to a polished fake asset dashboard than a fun placeholder page.
 
-### 6. Camada $OOO Meme/Inkchain
-- Página `/ticker` com:
-  - Ticker $OOO ao vivo (mock animado, candles inversas — quanto menos trabalhas, mais sobe).
-  - Manifesto: "Bart não é CEO. Bart é a personificação da eficiência preguiçosa."
-  - Lore do Lich Bartholomew (100 anos a ensinar).
-  - Whitepaper paródia (1 página).
-  - Botão "Mint your OOO day" → gera card NFT-style partilhável da tua melhor missão.
-- Sino do "MARKET OPEN" às 17h00.
+### 8. Copywriting pass across the app
+- Rewrite product copy to keep:
+  - absurdism
+  - dark humor
+  - “half-truths corporate”
+  - mental health satire without sounding sloppy
+- Improve all labels, headlines, microcopy, button text, state text, and completion messages.
+- Make Bart’s voice more defined:
+  - dry
+  - clever
+  - detached
+  - confident
+  - never childish
 
-### 7. Share virais
-- Qualquer missão concluída → botão "Share" → gera imagem (canvas) com Bart + frase + €€ ganho + ticker $OOO.
-- Frases rotativas absurdas focadas em **saúde mental como rebeldia**: "Descansar é resistência.", "O burnout não é flex.", "Bart diz: respira. O Slack pode esperar."
+### 9. Motion design and haptics system
+- Introduce a consistent motion language across the app:
+  - page entrance transitions
+  - card lift/press states
+  - segmented control animations
+  - ticker movement refinement
+  - overlay reveal/dismiss choreography
+  - progress pulses and live counters
+- Use the best browser-appropriate haptic patterns available for:
+  - mission start
+  - mission completion
+  - major CTA confirmation
+  - liberation moments
+- Keep all motion purposeful, not noisy.
 
-## Mobile-first & PWA
-- Layout mobile-first, bottom tab bar (Hoje · Calendário · Missões · Academy · $OOO).
-- **Manifest simples** para "Add to Home Screen" com ícone do Bart-lich (sem service worker complexo, evita problemas de preview).
-- Notificações push via API nativa do browser, com guard para não registar dentro de iframes de preview.
-- Som + vibração nas missões (Web Audio + `navigator.vibrate`).
+### 10. Navigation and shell polish
+- Refine `TopBar`, `BottomNav`, and route shell styling so the whole app feels like one coherent product.
+- Improve active states, spacing, surface treatments, and device-safe-area behavior.
+- Clean up metadata and app chrome to match the new brand direction.
 
-## Dados (Lovable Cloud)
-- Sem login obrigatório no MVP — tudo guardado local (localStorage) para fricção zero e viralidade.
-- Cloud opcional: leaderboard global de "€€ roubados ao patrão hoje", contagem total de almoços sagrados a decorrer agora no mundo ("Há 2.341 pessoas em almoço sagrado neste momento") — alimenta o lado meme/comunidade.
-- Tabela `public_stats` para os contadores globais; cards partilhados gerados server-side opcional.
+## Files likely to change
+- `src/styles.css`
+- `src/lib/ooo.ts`
+- `src/components/TopBar.tsx`
+- `src/components/BottomNav.tsx`
+- `src/components/MissionOverlay.tsx`
+- `src/routes/__root.tsx`
+- `src/routes/index.tsx`
+- `src/routes/calendar.tsx`
+- `src/routes/missions.tsx`
+- `src/routes/academy.tsx`
+- `src/routes/ticker.tsx`
+- `public/manifest.webmanifest`
+- mascot/image assets to replace the current Bart treatment
 
-## Tom editorial (regra fundamental)
-Todo o copy é **meias-verdades + meias-mentiras corporate** entregues com seriedade absoluta. Foco no absurdismo da saúde mental: rir do burnout sem o glorificar, celebrar o descanso como ato político-cómico. Bart é solene, nunca se ri de si próprio.
+## Technical implementation notes
+- Replace current mission data model fields that still assume emoji-first rendering with icon-friendly metadata.
+- Add reusable UI primitives for:
+  - section headers
+  - stat pills
+  - segmented toggles
+  - status chips
+  - premium cards
+- Use Lucide where it fits, and keep mascot usage as a brand illustration rather than as repeated decorative clutter.
+- Preserve TanStack route structure; do not edit `src/routeTree.gen.ts`.
+- Keep browser-safe haptics and audio only; no unsupported native/mobile-only APIs.
+- Use the uploaded mascot reference as inspiration for the new brand character direction, replacing the current lich visual identity.
+
+## Recommended rollout order
+1. Rebuild design tokens and brand system
+2. Replace mascot assets and icon language
+3. Redesign shell (`__root`, top bar, bottom nav)
+4. Redesign home and calendar first
+5. Redesign missions and overlay
+6. Redesign academy and ticker
+7. Run a full copy pass
+8. Final interaction polish: motion, haptics, and consistency pass
+
+## Expected result
+A far more premium, viral, and distinctive $OOO experience: less gimmicky, more branded; less emoji-app, more cult calendar product. The absurdity stays, but the execution becomes sharper, more tactile, more memorable, and much more screenshot-worthy.
