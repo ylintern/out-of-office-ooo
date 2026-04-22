@@ -1,12 +1,12 @@
 {
   "name": "$OOO — Out of Office",
   "short_name": "$OOO",
-  "description": "Calendário invertido de Bartholomew, o lich corporate. Vive a arte de evitar trabalho com classe.",
+  "description": "A premium absurdist calendar for sacred breaks, strategic absence, and the 17:00 liberation bell.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a1410",
-  "theme_color": "#10b981",
+  "background_color": "#141317",
+  "theme_color": "#141317",
   "icons": [
-    { "src": "/bart-icon.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "/ooo-icon.png", "sizes": "512x512", "type": "image/png" }
   ]
 }

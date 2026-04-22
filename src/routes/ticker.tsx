@@ -1,182 +1,111 @@
+import mascot from "@/assets/mascot.png";
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import bart from "@/assets/bart.png";
-import { isWorkHours, minutesUntil } from "@/lib/ooo";
+import { ArrowUpRight, BellRing, CandlestickChart, Share2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 
 export const Route = createFileRoute("/ticker")({
   head: () => ({
     meta: [
-      { title: "$OOO Ticker · Lore Inkchain" },
-      { name: "description", content: "Quanto menos trabalhas, mais sobe. Bart na inkchain." },
+      { title: "$OOO · Ticker" },
+      { name: "description", content: "A sharper fake market board where reduced productivity becomes bullish momentum." },
     ],
   }),
   component: TickerPage,
 });
 
 function TickerPage() {
-  const [price, setPrice] = useState(0.069);
-  const [history, setHistory] = useState<number[]>(() =>
-    Array.from({ length: 40 }, (_, i) => 0.04 + Math.sin(i / 3) * 0.012 + i * 0.0008)
-  );
+  const [price, setPrice] = useState(0.0691);
+  const [history, setHistory] = useState<number[]>(Array.from({ length: 32 }, (_, i) => 0.05 + Math.sin(i / 3) * 0.008 + i * 0.0007));
 
   useEffect(() => {
-    const id = setInterval(() => {
-      setPrice((p) => Math.max(0.001, p + (Math.random() - 0.42) * 0.004));
-      setHistory((h) => [...h.slice(-39), price]);
-    }, 1500);
-    return () => clearInterval(id);
-  }, [price]);
+    const id = window.setInterval(() => {
+      setPrice((current) => {
+        const next = Math.max(0.001, current + (Math.random() - 0.43) * 0.003);
+        setHistory((prev) => [...prev.slice(-31), next]);
+        return next;
+      });
+    }, 1600);
+    return () => window.clearInterval(id);
+  }, []);
 
-  const change = ((price - history[0]) / history[0]) * 100;
-  const open = !isWorkHours();
-  const minToOpen = minutesUntil(17, 0);
+  const change = useMemo(() => ((price - history[0]) / history[0]) * 100, [history, price]);
 
   return (
-    <div>
-      {/* Ticker tape */}
-      <div className="border-b border-border bg-card overflow-hidden">
-        <div className="ticker-tape whitespace-nowrap py-2 font-mono text-xs">
-          {Array.from({ length: 2 }).map((_, idx) => (
-            <span key={idx} className="inline-flex gap-6 px-3">
-              {[
-                ["$OOO", price.toFixed(4), change],
-                ["$LUNCH", "1.337", 4.2],
-                ["$WC", "0.420", 6.9],
-                ["$GHOST", "0.069", -2.1],
-                ["$BART", "100.00", 0],
-                ["$NAP", "0.250", 12.3],
-              ].map(([t, p, c], i) => (
-                <span key={`${idx}-${i}`} className="inline-flex gap-2">
-                  <span style={{ color: "var(--necro-glow)" }}>{t as string}</span>
-                  <span>{p as string}</span>
-                  <span style={{ color: (c as number) >= 0 ? "var(--terminal)" : "var(--candle)" }}>
-                    {(c as number) >= 0 ? "▲" : "▼"} {Math.abs(c as number).toFixed(2)}%
-                  </span>
-                </span>
-              ))}
-            </span>
-          ))}
+    <div className="space-y-4 px-3 pb-6 sm:px-0">
+      <section className="surface-panel overflow-hidden p-5 sm:p-6">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <p className="text-[10px] font-mono uppercase tracking-[0.28em] text-muted-foreground">Inkchain desk</p>
+            <h1 className="mt-2 font-display text-4xl text-foreground">$OOO trades on reduced enthusiasm.</h1>
+            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+              The aesthetic is now closer to a polished pseudo-terminal for degenerates with immaculate calendars: stronger hierarchy, cleaner data cards, and better satire density.
+            </p>
+          </div>
+          <div className="rounded-full border border-border bg-secondary p-4 text-primary">
+            <CandlestickChart className="h-5 w-5" />
+          </div>
         </div>
-      </div>
+      </section>
 
-      <div className="px-4 pt-4 space-y-5">
-        {/* Price card */}
-        <section className="rounded-2xl border border-necro bg-card p-5 shadow-necro relative overflow-hidden">
-          <div className="bg-grid absolute inset-0 opacity-20" />
-          <div className="relative">
-            <div className="flex items-baseline justify-between">
-              <div>
-                <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                  $OOO / USD
-                </div>
-                <div
-                  className="font-mono text-5xl tabular-nums text-glow-necro"
-                  style={{ color: "var(--necro-glow)" }}
-                >
-                  ${price.toFixed(4)}
-                </div>
-              </div>
-              <div
-                className="font-mono text-lg"
-                style={{ color: change >= 0 ? "var(--terminal)" : "var(--candle)" }}
-              >
-                {change >= 0 ? "▲" : "▼"} {Math.abs(change).toFixed(2)}%
+      <section className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
+        <div className="surface-panel p-5 sm:p-6">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="text-[10px] font-mono uppercase tracking-[0.24em] text-muted-foreground">$OOO / USD</div>
+              <div className="mt-2 font-mono text-5xl tabular-nums text-foreground">${price.toFixed(4)}</div>
+              <div className="mt-2 inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1 text-[10px] font-mono uppercase tracking-[0.22em] text-muted-foreground">
+                <ArrowUpRight className="h-3.5 w-3.5" />
+                {change >= 0 ? "+" : ""}{change.toFixed(2)}%
               </div>
             </div>
+            <img src={mascot} alt="$OOO mascot" className="h-24 w-24 object-contain" width={96} height={96} />
+          </div>
+          <div className="mt-6 rounded-[1.75rem] border border-border bg-card/82 p-4">
             <Sparkline data={history} positive={change >= 0} />
-            <div className="mt-2 font-mono text-[10px] uppercase tracking-widest text-muted-foreground italic">
-              quanto menos trabalhas, mais sobe.
+          </div>
+          <p className="mt-4 text-sm leading-6 text-muted-foreground">
+            Thesis: every ignored notification slightly improves the chart. Every cancelled meeting adds structural strength.
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          <section className="surface-panel p-5 sm:p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[10px] font-mono uppercase tracking-[0.24em] text-muted-foreground">Manifesto</p>
+                <h2 className="mt-2 font-display text-3xl text-foreground">Bart is not a CEO.</h2>
+              </div>
+              <div className="rounded-full border border-border bg-secondary p-3 text-primary">
+                <BellRing className="h-4 w-4" />
+              </div>
             </div>
-          </div>
-        </section>
-
-        {/* Market open */}
-        <section
-          className="rounded-2xl border p-4 text-center"
-          style={{
-            borderColor: open ? "var(--terminal)" : "var(--candle)",
-            background: open
-              ? "color-mix(in oklab, var(--terminal) 10%, var(--card))"
-              : "var(--card)",
-          }}
-        >
-          <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground">
-            {open ? "🔔 MARKET OPEN" : "MARKET CLOSED"}
-          </div>
-          <div className="font-gothic text-xl mt-1">
-            {open
-              ? "O dia começou. Foste libertado."
-              : `Sino bate em ${minToOpen >= 60 ? `${Math.floor(minToOpen / 60)}h${minToOpen % 60}m` : `${minToOpen}m`}.`}
-          </div>
-        </section>
-
-        {/* Manifesto */}
-        <section className="rounded-2xl border border-border bg-card p-5 relative overflow-hidden">
-          <img
-            src={bart}
-            alt=""
-            className="absolute -right-6 -bottom-6 h-40 w-40 opacity-30 float"
-            width={160}
-            height={160}
-          />
-          <div className="relative">
-            <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-              Manifesto
-            </div>
-            <h2 className="font-gothic text-2xl mt-1" style={{ color: "var(--gold)" }}>
-              Bart não é CEO.
-            </h2>
-            <p className="font-gothic text-lg mt-1">
-              Bart é a personificação da eficiência preguiçosa.
+            <p className="mt-4 text-sm leading-6 text-muted-foreground">
+              Bart is the personification of lazy efficiency: polished, dry, impossible to rush, and permanently unimpressed by productivity theatre. The goal is not collapse. The goal is composure.
             </p>
-            <p className="text-sm text-muted-foreground mt-3 leading-relaxed">
-              Há 100 anos que Bartholomew, lich de fato e gravata, ensina mortais a evitar
-              trabalho com classe. Não combatemos o sistema. Recusamo-nos a participar nele
-              com vigor. <span style={{ color: "var(--necro-glow)" }}>Descansar é resistência.</span>
-            </p>
-          </div>
-        </section>
+          </section>
 
-        {/* Whitepaper paródia */}
-        <section className="rounded-2xl border border-gold bg-card p-5 shadow-gold">
-          <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-            Whitepaper v0.069 · 1 página
-          </div>
-          <h3 className="font-gothic text-xl mt-1 text-glow-gold" style={{ color: "var(--gold)" }}>
-            $OOO: a primeira moeda lastreada em paz adquirida.
-          </h3>
-          <ul className="mt-3 space-y-2 text-sm">
-            <li>• <strong>Supply:</strong> 100,000,000,000 (um por neurónio queimado em 2024).</li>
-            <li>• <strong>Mecanismo:</strong> deflacionário cada vez que entras em call.</li>
-            <li>• <strong>Staking:</strong> faz nada, ganha mais.</li>
-            <li>• <strong>Governance:</strong> Bart vota. Tu descansas.</li>
-            <li>• <strong>Roadmap:</strong> não há. Roadmaps são uma ferramenta opressiva.</li>
-          </ul>
-        </section>
-
-        {/* Mint card */}
-        <button
-          onClick={() => {
-            if (typeof navigator !== "undefined" && navigator.share) {
-              navigator
-                .share({
-                  title: "$OOO",
-                  text: "Acabei de mintar o meu Out of Office Day. Bart abençoou. $OOO",
-                  url: typeof location !== "undefined" ? location.origin : undefined,
-                })
-                .catch(() => undefined);
-            }
-          }}
-          className="w-full rounded-2xl border-2 border-dashed border-gold py-5 font-gothic text-xl text-glow-gold"
-          style={{ color: "var(--gold)" }}
-        >
-          ✦ Mint your $OOO Day ✦
-        </button>
-
-        <p className="text-center font-mono text-[10px] uppercase tracking-widest text-muted-foreground pb-4">
-          $OOO · paródia · não é conselho financeiro · é conselho mental
-        </p>
-      </div>
+          <section className="surface-panel p-5 sm:p-6">
+            <p className="text-[10px] font-mono uppercase tracking-[0.24em] text-muted-foreground">Whitepaper excerpt</p>
+            <ul className="mt-4 space-y-3 text-sm leading-6 text-foreground">
+              <li><strong>Asset class:</strong> emotionally backed calendar satire.</li>
+              <li><strong>Consensus:</strong> if the meeting could have been a memo, holders vote with absence.</li>
+              <li><strong>Yield:</strong> denominated in peace, composure, and stolen minutes.</li>
+              <li><strong>Governance:</strong> Bart reviews proposals in principle, never in a rush.</li>
+            </ul>
+            <button
+              onClick={() => {
+                if (typeof navigator !== "undefined" && navigator.share) {
+                  navigator.share({ title: "$OOO", text: "Minted my $OOO day. The chart approved my absence." }).catch(() => undefined);
+                }
+              }}
+              className="button-premium mt-5 w-full justify-center"
+            >
+              <Share2 className="h-4 w-4" />
+              Share the market fiction
+            </button>
+          </section>
+        </div>
+      </section>
     </div>
   );
 }
@@ -184,25 +113,19 @@ function TickerPage() {
 function Sparkline({ data, positive }: { data: number[]; positive: boolean }) {
   const min = Math.min(...data);
   const max = Math.max(...data);
-  const w = 320;
-  const h = 60;
-  const pts = data
-    .map((v, i) => {
-      const x = (i / (data.length - 1)) * w;
-      const y = h - ((v - min) / Math.max(0.0001, max - min)) * h;
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
+  const width = 320;
+  const height = 72;
+  const points = data
+    .map((value, index) => {
+      const x = (index / (data.length - 1)) * width;
+      const y = height - ((value - min) / Math.max(0.0001, max - min)) * height;
+      return `${x.toFixed(2)},${y.toFixed(2)}`;
     })
     .join(" ");
-  const stroke = positive ? "var(--terminal)" : "var(--candle)";
+
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} className="mt-3 w-full h-16">
-      <polyline
-        fill="none"
-        stroke={stroke}
-        strokeWidth={2}
-        points={pts}
-        style={{ filter: `drop-shadow(0 0 6px ${stroke})` }}
-      />
+    <svg viewBox={`0 0 ${width} ${height}`} className="h-20 w-full">
+      <polyline fill="none" stroke={positive ? "var(--color-success)" : "var(--color-signal)"} strokeWidth={3} points={points} style={{ filter: `drop-shadow(0 0 10px ${positive ? "var(--color-success)" : "var(--color-signal)"})` }} />
     </svg>
   );
 }
