@@ -1,17 +1,28 @@
-import { useEffect, useRef, useState } from "react";
+import mascot from "@/assets/mascot.png";
 import {
   MISSIONS,
-  type Mission,
-  loadStats,
-  saveStats,
-  eurosFor,
-  fmtEuro,
-  fmtClock,
-  safeVibrate,
-  playBell,
   VIRAL_QUOTES,
+  eurosFor,
+  fmtClock,
+  fmtEuro,
+  loadStats,
+  playBell,
+  saveStats,
+  triggerHaptic,
+  type Mission,
+  type MissionIcon,
 } from "@/lib/ooo";
-import bart from "@/assets/bart.png";
+import { Coins, Coffee, Cross, Focus, Ghost, Share2, UtensilsCrossed, X } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+
+const iconMap: Record<MissionIcon, typeof UtensilsCrossed> = {
+  utensils: UtensilsCrossed,
+  coins: Coins,
+  coffee: Coffee,
+  ghost: Ghost,
+  focus: Focus,
+  file: Cross,
+};
 
 type Props = {
   mission: Mission;
@@ -21,165 +32,198 @@ type Props = {
 export function MissionOverlay({ mission, onClose }: Props) {
   const [seconds, setSeconds] = useState(0);
   const [done, setDone] = useState(false);
-  const [rate] = useState(() => loadStats().hourlyRate);
-  const target = mission.defaultMinutes * 60;
-  const startedAt = useRef(Date.now());
+  const [hourlyRate] = useState(() => loadStats().hourlyRate);
+  const [quoteIndex] = useState(() => MISSIONS.findIndex((item) => item.id === mission.id) % VIRAL_QUOTES.length);
+  const startedAt = useRef<number | null>(null);
+  const targetSeconds = mission.defaultMinutes * 60;
+  const Icon = iconMap[mission.icon];
 
   useEffect(() => {
-    safeVibrate([60, 40, 60]);
-    playBell(560, 0.5);
+    startedAt.current = Date.now();
+    triggerHaptic("launch");
+    playBell(560, 0.6);
+    const previous = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
+
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
     };
-  }, []);
+    window.addEventListener("keydown", onKey);
+
+    return () => {
+      document.body.style.overflow = previous;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [onClose]);
 
   useEffect(() => {
     if (done) return;
-    const id = setInterval(() => {
+    const id = window.setInterval(() => {
+      if (!startedAt.current) return;
       const elapsed = Math.floor((Date.now() - startedAt.current) / 1000);
       setSeconds(elapsed);
-      if (target > 0 && elapsed >= target) {
+      if (targetSeconds > 0 && elapsed >= targetSeconds) {
         setDone(true);
-        playBell(880, 0.7);
-        safeVibrate([120, 60, 120, 60, 200]);
+        playBell(860, 0.75);
+        triggerHaptic("complete");
       }
     }, 250);
-    return () => clearInterval(id);
-  }, [done, target]);
+    return () => window.clearInterval(id);
+  }, [done, targetSeconds]);
 
-  const remaining = target > 0 ? Math.max(0, target - seconds) : seconds;
-  const euros = eurosFor(seconds, rate);
-  const progress = target > 0 ? Math.min(100, (seconds / target) * 100) : 0;
+  const euros = eurosFor(seconds, hourlyRate);
+  const remaining = targetSeconds > 0 ? Math.max(0, targetSeconds - seconds) : seconds;
+  const progress = targetSeconds > 0 ? Math.min(100, (seconds / targetSeconds) * 100) : 18;
+  const quote = VIRAL_QUOTES[quoteIndex];
+  const accent = `var(--color-${mission.colorVar})`;
+  const summary = useMemo(
+    () => `${mission.name} concluída. Paz adquirida: ${fmtEuro(euros)}. ${quote}`,
+    [euros, mission.name, quote],
+  );
 
-  function finish() {
-    const s = loadStats();
-    s.lichPoints += Math.max(5, Math.floor(seconds / 30));
-    s.lifetimeEuros += euros;
-    s.lifetimeSeconds += seconds;
-    s.completedMissions += 1;
-    saveStats(s);
+  function finishMission() {
+    const stats = loadStats();
+    const next = {
+      ...stats,
+      lichPoints: stats.lichPoints + Math.max(8, Math.floor(seconds / 20)),
+      lifetimeEuros: stats.lifetimeEuros + euros,
+      lifetimeSeconds: stats.lifetimeSeconds + seconds,
+      completedMissions: stats.completedMissions + 1,
+    };
+    saveStats(next);
+    triggerHaptic("confirm");
     onClose();
   }
 
-  const quote = VIRAL_QUOTES[Math.floor(Math.random() * VIRAL_QUOTES.length)];
-  const colorVar = `var(--${mission.colorVar})`;
-
   return (
-    <div
-      className="fixed inset-0 z-50 flex flex-col bg-background bg-scanlines"
-      style={{
-        background: `radial-gradient(ellipse at top, color-mix(in oklab, ${colorVar} 18%, var(--background)) 0%, var(--background) 70%)`,
-      }}
-    >
-      <div className="absolute inset-0 bg-grid opacity-30 pointer-events-none" />
+    <div className="fixed inset-0 z-50 overflow-hidden bg-background/96 backdrop-blur-xl">
+      <div className="absolute inset-0 bg-grid opacity-35" />
+      <div className="absolute inset-0 bg-noise opacity-20" />
+      <div className="absolute inset-x-0 top-0 h-64" style={{ background: `radial-gradient(circle at top, color-mix(in oklab, ${accent} 28%, transparent), transparent 72%)` }} />
 
-      <div className="relative flex flex-1 flex-col items-center justify-center px-6 text-center">
-        <div className="font-mono text-[10px] uppercase tracking-[0.3em] text-muted-foreground mb-4">
-          {done ? "// MISSION COMPLETE" : "// MISSION IN PROGRESS"}
+      <div className="relative flex min-h-screen flex-col px-5 pb-8 pt-6 sm:px-8">
+        <div className="mx-auto flex w-full max-w-3xl items-center justify-between">
+          <div className="flex items-center gap-3 rounded-full border border-border bg-card/70 px-3 py-2">
+            <span className="flex h-10 w-10 items-center justify-center rounded-full border" style={{ borderColor: accent, color: accent }}>
+              <Icon className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="text-[10px] font-mono uppercase tracking-[0.28em] text-muted-foreground">{done ? "Protocol archived" : mission.kicker}</p>
+              <h2 className="font-display text-lg text-foreground">{mission.name}</h2>
+            </div>
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="Fechar"
+            className="flex h-11 w-11 items-center justify-center rounded-full border border-border bg-card/80 text-muted-foreground transition-transform duration-300 hover:scale-105"
+          >
+            <X className="h-4 w-4" />
+          </button>
         </div>
 
-        <div className="text-6xl mb-2 float">{mission.emoji}</div>
-        <h1
-          className="font-gothic text-3xl sm:text-4xl text-glow-necro mb-2"
-          style={{ color: colorVar }}
-        >
-          {mission.name}
-        </h1>
+        <div className="mx-auto grid w-full max-w-3xl flex-1 items-center gap-8 py-6 lg:grid-cols-[1.05fr_0.95fr]">
+          <section className="surface-panel relative overflow-hidden p-6 sm:p-7">
+            <div className="absolute -right-6 -top-8 h-40 w-40 rounded-full blur-3xl" style={{ background: `color-mix(in oklab, ${accent} 26%, transparent)` }} />
+            <div className="relative">
+              <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">
+                {done ? "Completed with composure" : "Do not disturb the ritual"}
+              </p>
+              <h1 className="mt-3 max-w-xl font-display text-4xl leading-none text-foreground sm:text-5xl">{done ? mission.endLine(fmtEuro(euros)) : mission.startLine}</h1>
+              <p className="mt-4 max-w-lg text-sm leading-6 text-muted-foreground">{mission.ruleLine}</p>
 
-        {!done ? (
-          <>
-            <p className="font-gothic text-lg text-foreground/90 max-w-sm mb-8">
-              {mission.startLine}
-            </p>
+              <div className="mt-8 flex items-end gap-4">
+                <div>
+                  <div className="text-[11px] font-mono uppercase tracking-[0.24em] text-muted-foreground">
+                    {targetSeconds > 0 ? "Remaining" : "Live counter"}
+                  </div>
+                  <div className="font-mono text-6xl tabular-nums tracking-tight text-foreground sm:text-7xl">
+                    {fmtClock(targetSeconds > 0 ? remaining : seconds)}
+                  </div>
+                </div>
+                <div className="mb-2 rounded-full border border-border bg-secondary px-3 py-1 text-[10px] font-mono uppercase tracking-[0.24em] text-muted-foreground">
+                  {mission.defaultMinutes > 0 ? `${mission.defaultMinutes} min protocol` : "No timer limit"}
+                </div>
+              </div>
 
-            <div
-              className="font-mono text-7xl sm:text-8xl tabular-nums text-glow-necro mb-2"
-              style={{ color: colorVar }}
-            >
-              {fmtClock(target > 0 ? remaining : seconds)}
-            </div>
-
-            <div className="font-mono text-xs uppercase tracking-widest text-muted-foreground mb-6">
-              {target > 0 ? "tempo restante" : "a contar para sempre"}
-            </div>
-
-            {target > 0 && (
-              <div className="w-full max-w-sm h-1.5 bg-muted rounded-full overflow-hidden mb-6">
+              <div className="mt-6 h-2 overflow-hidden rounded-full bg-secondary">
                 <div
-                  className="h-full transition-all duration-300"
-                  style={{ width: `${progress}%`, background: colorVar, boxShadow: `0 0 12px ${colorVar}` }}
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{ width: `${progress}%`, background: `linear-gradient(90deg, ${accent}, color-mix(in oklab, ${accent} 45%, white))`, boxShadow: `0 0 28px ${accent}` }}
                 />
               </div>
-            )}
 
-            <div className="rounded-lg border border-border bg-card/60 px-5 py-3 backdrop-blur">
-              <div className="font-mono text-[10px] uppercase tracking-widest text-muted-foreground">
-                paz adquirida ao patrão
-              </div>
-              <div
-                className="font-mono text-3xl tabular-nums text-glow-gold"
-                style={{ color: "var(--gold)" }}
-              >
-                {fmtEuro(euros)}
-              </div>
-            </div>
-
-            <button
-              onClick={finish}
-              className="mt-8 font-mono text-xs uppercase tracking-widest text-muted-foreground underline"
-            >
-              terminar mais cedo (cobarde)
-            </button>
-          </>
-        ) : (
-          <>
-            <p className="font-gothic text-2xl text-foreground mb-2 max-w-md">
-              {mission.endLine(fmtEuro(euros))}
-            </p>
-            <p className="font-mono text-xs italic text-muted-foreground mb-8">
-              "{quote}" — Bartholomew
-            </p>
-
-            <div className="flex flex-col items-center gap-4">
-              <img src={bart} alt="" className="h-32 w-32 pulse-necro" width={128} height={128} />
-              <div className="flex gap-3">
-                <button
-                  onClick={() => {
-                    if (typeof navigator !== "undefined" && navigator.share) {
-                      navigator
-                        .share({
-                          title: "$OOO",
-                          text: `${mission.emoji} ${mission.name} concluída. Paz adquirida: ${fmtEuro(euros)}. ${quote} — $OOO`,
-                        })
-                        .catch(() => undefined);
-                    }
-                  }}
-                  className="rounded-md border border-gold px-5 py-2.5 font-mono text-xs uppercase tracking-widest text-glow-gold"
-                  style={{ color: "var(--gold)" }}
-                >
-                  Partilhar vitória
-                </button>
-                <button
-                  onClick={finish}
-                  className="rounded-md px-5 py-2.5 font-mono text-xs uppercase tracking-widest"
-                  style={{ background: colorVar, color: "var(--primary-foreground)" }}
-                >
-                  Reclamar Lich Points
-                </button>
+              <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-3xl border border-border bg-card/88 p-4">
+                  <div className="text-[10px] font-mono uppercase tracking-[0.24em] text-muted-foreground">Peace acquired</div>
+                  <div className="mt-2 font-mono text-3xl tabular-nums text-foreground">{fmtEuro(euros)}</div>
+                  <p className="mt-2 text-xs leading-5 text-muted-foreground">Cada segundo fora do ruído conta como dividendo emocional.</p>
+                </div>
+                <div className="rounded-3xl border border-border bg-card/88 p-4">
+                  <div className="text-[10px] font-mono uppercase tracking-[0.24em] text-muted-foreground">Cultural impact</div>
+                  <div className="mt-2 font-display text-2xl text-foreground">{done ? "Approved exit" : "Operational disappearance"}</div>
+                  <p className="mt-2 text-xs leading-5 text-muted-foreground">Bart chama-lhe gestão de energia. RH chamaria outra coisa se tivesse imaginação.</p>
+                </div>
               </div>
             </div>
-          </>
-        )}
+          </section>
+
+          <section className="surface-panel relative overflow-hidden p-6 sm:p-7">
+            <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-primary/10 to-transparent" />
+            <div className="relative flex h-full flex-col justify-between gap-6">
+              <div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">Witness</p>
+                    <h3 className="mt-2 font-display text-2xl text-foreground">Bart approves strategic absence.</h3>
+                  </div>
+                  <img src={mascot} alt="Bart mascot" className="h-24 w-24 object-contain drop-shadow-[0_22px_44px_rgba(145,107,255,0.28)]" width={96} height={96} />
+                </div>
+
+                <blockquote className="mt-5 rounded-3xl border border-border bg-secondary/70 p-4 text-sm leading-6 text-foreground">
+                  “{quote}”
+                </blockquote>
+              </div>
+
+              <div className="space-y-3">
+                {done ? (
+                  <>
+                    <button
+                      onClick={() => {
+                        if (typeof navigator !== "undefined" && navigator.share) {
+                          navigator.share({ title: "$OOO", text: summary }).catch(() => undefined);
+                        }
+                      }}
+                      className="button-premium w-full justify-center"
+                    >
+                      <Share2 className="h-4 w-4" />
+                      Share the alibi
+                    </button>
+                    <button onClick={finishMission} className="button-ghost w-full justify-center">
+                      Archive ritual
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => {
+                        setDone(true);
+                        playBell(740, 0.45);
+                        triggerHaptic("confirm");
+                      }}
+                      className="button-premium w-full justify-center"
+                    >
+                      Seal this protocol now
+                    </button>
+                    <button onClick={finishMission} className="button-ghost w-full justify-center">
+                      Exit without ceremony
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          </section>
+        </div>
       </div>
-
-      <button
-        onClick={onClose}
-        aria-label="Fechar"
-        className="absolute top-4 right-4 font-mono text-xs text-muted-foreground"
-      >
-        [ esc ]
-      </button>
     </div>
   );
 }

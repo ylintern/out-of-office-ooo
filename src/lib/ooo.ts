@@ -1,111 +1,106 @@
-// $OOO core utilities — client-only, localStorage-based.
+export type MissionId = "lunch" | "wc" | "coffee" | "ghost" | "focus" | "doctor";
 
-export type MissionId =
-  | "lunch"
-  | "wc"
-  | "coffee"
-  | "ghost"
-  | "focus"
-  | "doctor";
+export type MissionIcon = "utensils" | "coins" | "coffee" | "ghost" | "focus" | "file";
+
+export type MissionAccent = "ink" | "pearl" | "signal" | "success";
 
 export type Mission = {
   id: MissionId;
-  emoji: string;
+  icon: MissionIcon;
   name: string;
+  kicker: string;
   ruleLine: string;
   defaultMinutes: number;
   startLine: string;
   endLine: (euros: string) => string;
-  colorVar: "necro" | "gold" | "candle" | "terminal";
+  colorVar: MissionAccent;
 };
 
 export const MISSIONS: Mission[] = [
   {
     id: "lunch",
-    emoji: "🍝",
+    icon: "utensils",
     name: "Almoço Sagrado",
-    ruleLine: "É lei. Ninguém te interrompe. Nem o CEO.",
+    kicker: "Protected block",
+    ruleLine: "É agenda blindada. Se insistirem, insistem contra a civilização.",
     defaultMinutes: 60,
-    startLine: "ALMOÇO. ISTO É SAGRADO. NÃO RESPONDAS.",
-    endLine: (e) => `Voltaste mais forte. O patrão pagou ${e} pela tua digestão.`,
-    colorVar: "gold",
+    startLine: "Almoço em curso. A tua alma saiu do Slack e foi sentar-se ao sol.",
+    endLine: (euros) => `Regressaste composto. A empresa financiou ${euros} de digestão estratégica.`,
+    colorVar: "pearl",
   },
   {
     id: "wc",
-    emoji: "🚽",
+    icon: "coins",
     name: "WC Pago",
-    ruleLine: "O patrão paga. Tu respiras. O capitalismo perde.",
+    kicker: "Revenue ritual",
+    ruleLine: "A pausa é íntima. O salário continua público.",
     defaultMinutes: 7,
-    startLine: "ESTÁS A SER PAGO PARA EXISTIR EM PAZ.",
-    endLine: (e) => `Parabéns. ${e} de paz adquiridos. Lich Points +10.`,
-    colorVar: "necro",
+    startLine: "Estás temporariamente indisponível para o capitalismo. Excelente decisão.",
+    endLine: (euros) => `${euros} de paz adquirida. O teu manager patrocinou silêncio premium.`,
+    colorVar: "success",
   },
   {
     id: "coffee",
-    emoji: "☕",
+    icon: "coffee",
     name: "Café Estendido",
-    ruleLine: "Tecnicamente disponível. Tecnicamente.",
+    kicker: "Soft escape",
+    ruleLine: "Tecnicamente disponível. Tecnicamente é uma palavra generosa.",
     defaultMinutes: 15,
-    startLine: "O café é uma reunião contigo próprio.",
-    endLine: (e) => `Café concluído. ${e} faturados em silêncio.`,
-    colorVar: "terminal",
+    startLine: "O café está a alinhar expectativas. Tu estás só a respirar melhor.",
+    endLine: (euros) => `Pausa concluída. ${euros} faturados com postura impecável e cafeína.`,
+    colorVar: "ink",
   },
   {
     id: "ghost",
-    emoji: "👻",
+    icon: "ghost",
     name: "Reunião Fantasma",
-    ruleLine: "Bloqueia o calendário. A reunião não existe. Tu também não.",
+    kicker: "Calendar camouflage",
+    ruleLine: "Bloqueias o tempo. A reunião não existe. A autoridade sim.",
     defaultMinutes: 45,
-    startLine: "ESTÁS NUMA REUNIÃO. (Não estás.)",
-    endLine: (e) => `Reunião 'produtiva'. ${e} de aparências bem investidos.`,
-    colorVar: "necro",
+    startLine: "Estás bloqueado em calendário. É a forma mais elegante de desaparecer.",
+    endLine: (euros) => `A reunião evaporou-se. ${euros} convertidos em presença performativa.`,
+    colorVar: "signal",
   },
   {
     id: "focus",
-    emoji: "🎯",
+    icon: "focus",
     name: "Deep Focus Falso",
-    ruleLine: "Status: a focar. Atividade: a respirar.",
+    kicker: "Silent theatre",
+    ruleLine: "Status: concentrado. Realidade: indisponível para absurdos alheios.",
     defaultMinutes: 25,
-    startLine: "FOCO PROFUNDO. NÃO PERTURBAR. (A ver memes.)",
-    endLine: (e) => `Sessão de foco completa. ${e} ganhos a contemplar.`,
-    colorVar: "terminal",
+    startLine: "Entraste em foco profundo. O que isso significa não é do interesse de ninguém.",
+    endLine: (euros) => `Sessão encerrada. ${euros} ganhos a parecer intensamente ocupado.`,
+    colorVar: "ink",
   },
   {
     id: "doctor",
-    emoji: "🤧",
+    icon: "file",
     name: "Doctor's Note",
-    ruleLine: "Atestado de Bartholomew, M.D. (Master of Disengagement).",
+    kicker: "Official excuse",
+    ruleLine: "Documento solene para sintomas que a cultura corporate finge não ver.",
     defaultMinutes: 0,
-    startLine: "Estás oficialmente indisposto. Por decreto necromântico.",
-    endLine: () => "Atestado emitido. Recupera. Lich Points +25.",
-    colorVar: "candle",
+    startLine: "Ficas oficialmente dispensado de entusiasmo performativo por ordem médica satírica.",
+    endLine: () => "Atestado emitido. Recupera da produtividade como quem sai de um culto.",
+    colorVar: "signal",
   },
 ];
 
-export type Rank =
-  | "Estagiário"
-  | "Office Drone"
-  | "Senior Slacker"
-  | "Bart Apprentice"
-  | "Lich CEO";
+export type Rank = "Estagiário" | "Office Drone" | "Senior Slacker" | "Bart Operative" | "OOO Oracle";
 
 export const RANKS: { name: Rank; min: number }[] = [
   { name: "Estagiário", min: 0 },
   { name: "Office Drone", min: 50 },
   { name: "Senior Slacker", min: 200 },
-  { name: "Bart Apprentice", min: 500 },
-  { name: "Lich CEO", min: 1500 },
+  { name: "Bart Operative", min: 500 },
+  { name: "OOO Oracle", min: 1500 },
 ];
 
 export function rankFor(points: number): Rank {
-  return RANKS.reduce<Rank>(
-    (acc, r) => (points >= r.min ? r.name : acc),
-    "Estagiário"
-  );
+  return RANKS.reduce<Rank>((acc, rank) => (points >= rank.min ? rank.name : acc), "Estagiário");
 }
 
 export type Stats = {
-  hourlyRate: number;          // €/h
+  hourlyRate: number;
   lichPoints: number;
   lifetimeEuros: number;
   lifetimeSeconds: number;
@@ -114,7 +109,19 @@ export type Stats = {
   installDate: string;
 };
 
-const STATS_KEY = "ooo.stats.v1";
+const STATS_KEY = "ooo.stats.v2";
+
+function defaultStats(): Stats {
+  return {
+    hourlyRate: 14,
+    lichPoints: 0,
+    lifetimeEuros: 0,
+    lifetimeSeconds: 0,
+    unlockedLessons: 4,
+    completedMissions: 0,
+    installDate: "2026-04-22T00:00:00.000Z",
+  };
+}
 
 export function loadStats(): Stats {
   if (typeof window === "undefined") return defaultStats();
@@ -127,125 +134,155 @@ export function loadStats(): Stats {
   }
 }
 
-export function saveStats(s: Stats) {
+export function saveStats(stats: Stats) {
   if (typeof window === "undefined") return;
-  localStorage.setItem(STATS_KEY, JSON.stringify(s));
-}
-
-function defaultStats(): Stats {
-  return {
-    hourlyRate: 12,
-    lichPoints: 0,
-    lifetimeEuros: 0,
-    lifetimeSeconds: 0,
-    unlockedLessons: 1,
-    completedMissions: 0,
-    installDate: new Date().toISOString(),
-  };
+  localStorage.setItem(STATS_KEY, JSON.stringify(stats));
 }
 
 export function eurosFor(seconds: number, hourlyRate: number): number {
   return (seconds / 3600) * hourlyRate;
 }
 
-export function fmtEuro(n: number): string {
-  return `€${n.toFixed(2).replace(".", ",")}`;
+export function fmtEuro(value: number): string {
+  return new Intl.NumberFormat("pt-PT", {
+    style: "currency",
+    currency: "EUR",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
 }
 
 export function fmtClock(totalSeconds: number): string {
-  const s = Math.max(0, Math.floor(totalSeconds));
-  const m = Math.floor(s / 60);
-  const ss = s % 60;
-  return `${String(m).padStart(2, "0")}:${String(ss).padStart(2, "0")}`;
+  const safe = Math.max(0, Math.floor(totalSeconds));
+  const minutes = Math.floor(safe / 60);
+  const seconds = safe % 60;
+  return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
 }
 
-// 100 lessons of corporate half-truths
+export function fmtCompactMinutes(totalMinutes: number): string {
+  if (totalMinutes >= 60) {
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    return `${hours}h${minutes ? `${minutes}m` : ""}`;
+  }
+  return `${totalMinutes}m`;
+}
+
 export const LESSONS: string[] = [
-  "Responde a emails às 8h59 e às 17h01. Parecerás incansável.",
-  "“Vou alinhar com a equipa” = vou pensar nisto na casa de banho.",
-  "Marca um meeting às 16h45 para ninguém te marcar nada às 17h.",
-  "Mantém sempre o Slack em ‘a escrever…’ por 3 segundos. Ninguém ousa interromper.",
-  "Cota oficial de cafés: ilimitada quando o gestor está em férias.",
-  "Reencaminhar > responder. O autor original carrega a culpa.",
-  "Diz “estou a sincronizar” pelo menos uma vez por dia. Não significa nada.",
-  "Se a reunião pode ser um email, marca-a na mesma. Aparenta gravidade.",
-  "Quinta-feira à tarde é sexta emocional. Age em conformidade.",
-  "‘Focus time’ no calendário é território soberano. Defende-o.",
-  "Toda a sexta tem uma ‘call urgente’ às 16h45. Sai antes de começar.",
-  "Estar online no Teams é mais importante do que estar lá.",
-  "Quando alguém te marcar uma call, propõe ‘assíncrono’. 80% desistem.",
-  "Diz “let me circle back” em inglês. Ninguém pede prazos.",
-  "“Estou em deslocação” cobre 45–90 minutos sem perguntas.",
-  "Bater na mesa do gestor com energia constrói uma reputação de iniciativa.",
-  "Manda 1 email às 22h por semana. Lendas nascem assim.",
-  "Tens direito a 5 minutos de luto por cada novo OKR.",
-  "Toda a apresentação melhora com um gráfico que não explicas.",
-  "Se alguém pergunta o status, responde “em fase final de validação”.",
-  "Janela do browser sempre com Excel aberto. É a tua armadura.",
-  "Almoço de 60 min é constitucional. 75 é uma negociação justa.",
-  "Reúne-te contigo próprio no calendário. Ninguém te pode tirar de lá.",
-  "Não chames ‘erro’. Chama ‘oportunidade de aprendizagem partilhada’.",
-  "Toda a thread > 5 mensagens deve terminar com “proponho call”.",
-  "‘Estou no comboio’ pausa qualquer urgência por 47 minutos.",
-  "Compra uns auscultadores caros. Estás “em call” quando precisares.",
-  "Nunca sejas o primeiro a entrar nem o último a sair. Sê fumo.",
-  "Toda a segunda-feira começa com 25 min de ‘alinhamento’ contigo.",
-  "Quando te elogiam, retribui. Quando te criticam, agradece. Continua igual.",
+  "Responde a emails às 8h59 e às 17h01. Parecerás dedicado sem conviver muito com o problema.",
+  "'Vou alinhar com a equipa' significa apenas que ainda não queres responder a ninguém.",
+  "Marca um bloqueio às 16h45. O medo administrativo faz o resto.",
+  "Se o status disser focus, 70% das pessoas desistem por respeito ou superstição.",
+  "Toda a call com agenda vazia é um pedido elegante para estares ausente em espírito.",
+  "'Estou a rever prioridades' é português corporate para 'não hoje'.",
+  "Quem controla o calendário controla a narrativa e, por arrasto, a paz.",
+  "Há emails que merecem resposta. Há outros que merecem um café primeiro. Normalmente, um café longo.",
+  "Sexta às 16h é um estado de consciência, não uma hora.",
+  "Sempre que disseres 'vamos deixar assíncrono', uma reunião morre em silêncio.",
+  "A tua disponibilidade é um rumor. Não o confirmes com pressa.",
+  "Se parecer estratégico, até o descanso passa por liderança.",
+  "Uma pausa curta no momento certo vale mais do que 40 minutos a fingir concentração.",
+  "Nunca digas 'não fiz'. Diz 'não fazia sentido avançar sem contexto'.",
+  "Há um tipo de produtividade que só existe porque alguém decidiu medir sofrimento.",
+  "A agenda perfeita tem espaço. O resto é opressão com cores suaves.",
+  "Responder depressa cria expectativa. Responder bem cria distância profissional.",
+  "Toda a empresa respeita mais um bloco chamado review do que um bloco chamado sanidade.",
+  "O teu almoço não é negociável. É só mal defendido em muitas organizações.",
+  "Quando disserem 'rápido', prepara-te para um abuso de calendário em traje casual.",
 ];
+
 while (LESSONS.length < 100) {
-  LESSONS.push(`Lição #${LESSONS.length + 1}: o segredo está no silêncio estratégico.`);
+  LESSONS.push(`Lição #${LESSONS.length + 1}: protege o teu tempo como quem esconde ouro num documento partilhado.`);
 }
 
 export const VIRAL_QUOTES = [
-  "Descansar é resistência.",
-  "O burnout não é flex.",
-  "Bart diz: respira. O Slack pode esperar.",
-  "O calendário existe para te proteger, não para te trair.",
-  "Reuniões cancelam-se mentalmente primeiro.",
-  "Ninguém morreu por ignorar um email às 17h02.",
+  "Descansar é uma forma discreta de insubordinação.",
+  "O burnout nunca foi prova de carácter. Só de contexto tóxico.",
+  "Bart recomenda calma. O sistema prefere espetáculo.",
+  "Se tudo é urgente, nada merece a tua pulsação.",
+  "A agenda existe para te servir, não para te perseguir.",
+  "Há dias em que sobreviver ao corporate já conta como performance sólida.",
+];
+
+export const BART_TIPS = [
+  "Marca tempo livre como se fosse governance. Ninguém questiona a palavra certa com convicção suficiente.",
+  "O melhor momento para parecer indisponível é cinco minutos antes de alguém precisar de ti.",
+  "Se uma tarefa te drena a alma, parte-a em blocos e desaparece entre eles.",
+  "A tua energia não é um recurso infinito, embora alguns managers tenham fantasia de mineração.",
+  "Há uma diferença nobre entre colaborar e estar permanentemente acessível. Aprende-a e protege-a.",
+];
+
+export const CALENDAR_TEMPLATES = [
+  { label: "Tarde livre estratégica", duration: 3, start: 14, type: "free" as const },
+  { label: "Sexta-fantasma", duration: 6, start: 11, type: "free" as const },
+  { label: "Reunião que já desistiu de existir", duration: 1, start: 15, type: "free" as const },
+  { label: "Faixa de damage control", duration: 2, start: 9, type: "work" as const },
 ];
 
 export function safeVibrate(pattern: number | number[]) {
-  if (typeof navigator === "undefined") return;
-  if ("vibrate" in navigator) {
-    try { (navigator as Navigator).vibrate(pattern); } catch { /* noop */ }
+  if (typeof navigator === "undefined" || !("vibrate" in navigator)) return;
+  try {
+    navigator.vibrate(pattern);
+  } catch {
+    return;
   }
 }
 
-export function playBell(freq = 440, duration = 0.6) {
+export function triggerHaptic(kind: "launch" | "confirm" | "complete" | "liberation") {
+  const patterns = {
+    launch: [20, 30, 20],
+    confirm: 28,
+    complete: [35, 50, 35, 80, 60],
+    liberation: [50, 40, 50, 40, 120],
+  } as const;
+  safeVibrate(patterns[kind]);
+}
+
+export function playBell(frequency = 440, duration = 0.6) {
   if (typeof window === "undefined") return;
   try {
-    const Ctx =
-      (window as unknown as { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext })
-        .AudioContext ||
-      (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!Ctx) return;
-    const ctx = new Ctx();
-    const o = ctx.createOscillator();
-    const g = ctx.createGain();
-    o.type = "sine";
-    o.frequency.value = freq;
-    g.gain.value = 0.001;
-    o.connect(g).connect(ctx.destination);
+    const AudioCtx =
+      window.AudioContext ||
+      (window as typeof window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const gain = ctx.createGain();
+    const osc = ctx.createOscillator();
+    const overtone = ctx.createOscillator();
+
+    osc.type = "triangle";
+    osc.frequency.value = frequency;
+    overtone.type = "sine";
+    overtone.frequency.value = frequency * 1.5;
+
+    gain.gain.value = 0.0001;
+    osc.connect(gain);
+    overtone.connect(gain);
+    gain.connect(ctx.destination);
+
     const now = ctx.currentTime;
-    g.gain.exponentialRampToValueAtTime(0.4, now + 0.02);
-    g.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-    o.start(now);
-    o.stop(now + duration + 0.05);
-  } catch { /* noop */ }
+    gain.gain.exponentialRampToValueAtTime(0.18, now + 0.04);
+    gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+    osc.start(now);
+    overtone.start(now);
+    osc.stop(now + duration + 0.04);
+    overtone.stop(now + duration + 0.04);
+  } catch {
+    return;
+  }
 }
 
-export function isWorkHours(d = new Date()): boolean {
-  const day = d.getDay();
+export function isWorkHours(date = new Date()): boolean {
+  const day = date.getDay();
   if (day === 0 || day === 6) return false;
-  const h = d.getHours();
-  return h >= 9 && h < 17;
+  const hour = date.getHours();
+  return hour >= 9 && hour < 17;
 }
 
-export function minutesUntil(hour: number, minute = 0): number {
-  const now = new Date();
-  const t = new Date();
-  t.setHours(hour, minute, 0, 0);
-  if (t.getTime() <= now.getTime()) t.setDate(t.getDate() + 1);
-  return Math.floor((t.getTime() - now.getTime()) / 60000);
+export function minutesUntil(hour: number, minute = 0, now = new Date()): number {
+  const target = new Date(now);
+  target.setHours(hour, minute, 0, 0);
+  if (target.getTime() <= now.getTime()) target.setDate(target.getDate() + 1);
+  return Math.floor((target.getTime() - now.getTime()) / 60000);
 }
