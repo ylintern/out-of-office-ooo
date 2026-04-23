@@ -1,244 +1,272 @@
 import mascot from "@/assets/mascot.png";
-import { BART_TIPS, MISSIONS, fmtCompactMinutes, fmtEuro, fmtClock, isWorkHours, loadStats, minutesUntil, rankFor, saveStats, triggerHaptic } from "@/lib/ooo";
+import { OnboardingWizard } from "@/components/OnboardingWizard";
+import { DataCard, KpiCard, QuickActionCard, SectionHeader, StatusPill } from "@/components/dashboard/DashboardPrimitives";
+import {
+  BART_TIPS,
+  MISSIONS,
+  calculateLiveEarnings,
+  fmtCompactMinutes,
+  fmtEuro,
+  getProtectedMinutesLeft,
+  getSacredReminders,
+  getWorkStatus,
+  loadPrefs,
+  loadStats,
+  rankFor,
+  savePrefs,
+  saveStats,
+  triggerHaptic,
+  type Reminder,
+} from "@/lib/ooo";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Bell, CalendarRange, Coins, Orbit, Sparkles } from "lucide-react";
+import { ArrowRight, Bell, BookOpenText, CalendarRange, Coins, Orbit, Sparkles } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Today · $OOO" },
-      { name: "description", content: "A control room for sacred breaks, strategic absence, and the 17:00 liberation bell." },
+      { name: "description", content: "Today is the command dashboard for sacred breaks, defended lunch, and profitable absence." },
     ],
   }),
   component: TodayPage,
 });
 
 function TodayPage() {
-  const [stats, setStats] = useState({ hourlyRate: 14, lichPoints: 0, lifetimeEuros: 0, lifetimeSeconds: 0, unlockedLessons: 4, completedMissions: 0, installDate: "2026-04-22T00:00:00.000Z" });
+  const [stats, setStats] = useState(loadStats());
+  const [prefs, setPrefs] = useState(loadPrefs());
   const [now, setNow] = useState<Date | null>(null);
-  const [hourlyInput, setHourlyInput] = useState("14");
+  const [wizardOpen, setWizardOpen] = useState(false);
 
   useEffect(() => {
     setStats(loadStats());
-    setHourlyInput(String(loadStats().hourlyRate));
+    setPrefs(loadPrefs());
     const update = () => setNow(new Date());
     update();
     const id = window.setInterval(update, 1000);
     return () => window.clearInterval(id);
   }, []);
 
-  const workMode = now ? isWorkHours(now) : true;
-  const liberationMinutes = now ? minutesUntil(17, 0, now) : 0;
-  const lunchMinutes = now ? minutesUntil(13, 0, now) : 0;
-  const ritualMinutes = now ? minutesUntil(15, 0, now) : 0;
-  const todayRevenue = now && workMode ? (((now.getHours() - 9) * 3600) + now.getMinutes() * 60 + now.getSeconds()) * (stats.hourlyRate / 3600) : 0;
-  const quote = useMemo(() => BART_TIPS[stats.completedMissions % BART_TIPS.length], [stats.completedMissions]);
+  const workStatus = useMemo(() => (now ? getWorkStatus(now, prefs) : { inWorkday: true, untilEndMinutes: 0, minutesSinceStart: 0 }), [now, prefs]);
+  const liveValue = now ? calculateLiveEarnings(now, prefs) : 0;
+  const lunchLeft = now ? getProtectedMinutesLeft(now, prefs) : 0;
   const rank = rankFor(stats.lichPoints);
-  const freedomCountdown = now ? fmtClock(liberationMinutes * 60) : "--:--";
+  const reminders = useMemo<Reminder[]>(() => (now ? getSacredReminders(now, prefs) : []), [now, prefs]);
+  const tip = useMemo(() => BART_TIPS[stats.completedMissions % BART_TIPS.length], [stats.completedMissions]);
+  const completionProgress = Math.min(100, (stats.completedMissions / 12) * 100);
+  const lessonProgress = Math.min(100, (stats.unlockedLessons / 12) * 100);
 
-  function updateRate(value: string) {
-    setHourlyInput(value);
-    const numeric = Number.parseFloat(value);
-    if (!Number.isNaN(numeric) && numeric > 0) {
-      const next = { ...stats, hourlyRate: numeric };
-      setStats(next);
-      saveStats(next);
-      triggerHaptic("confirm");
-    }
+  function updateRate(delta: number) {
+    const nextRate = Math.max(1, Number((prefs.hourlyRate + delta).toFixed(2)));
+    const nextPrefs = { ...prefs, hourlyRate: nextRate };
+    setPrefs(nextPrefs);
+    savePrefs(nextPrefs);
+    const nextStats = { ...stats, hourlyRate: nextRate };
+    setStats(nextStats);
+    saveStats(nextStats);
+    triggerHaptic("confirm");
   }
 
-  const schedule = [
-    { label: "Sacred lunch", time: lunchMinutes, icon: Bell, tone: "pearl" as const, copy: "No pings. No clarifications. Only lunch." },
-    { label: "Paid bathroom ritual", time: ritualMinutes, icon: Coins, tone: "success" as const, copy: "Small disappearance. Excellent return on time." },
-    { label: "17:00 liberation", time: liberationMinutes, icon: Sparkles, tone: "signal" as const, copy: "Leave without a final tragic email." },
-  ];
-
   return (
-    <div className="space-y-4 px-3 pb-6 sm:px-0">
-      <section className="grid gap-4 lg:grid-cols-[1.3fr_0.7fr]">
-        <div className="hero-shell overflow-hidden px-5 py-6 sm:px-7 sm:py-7">
-          <div className="grid items-center gap-6 lg:grid-cols-[1.15fr_0.85fr]">
-            <div>
-              <div className="badge-row">
-                <span className="badge-chip">Absurdist calendar OS</span>
-                <span className="badge-chip">Haptics-ready rituals</span>
-              </div>
-              <h1 className="mt-4 max-w-2xl font-display text-4xl leading-none text-foreground sm:text-5xl lg:text-6xl">
-                The calendar app everyone wanted after their fifth meaningless invite.
-              </h1>
-              <p className="mt-4 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base">
-                $OOO turns free time into the main character. Lunch is sacred, ghost meetings are elegant, and 17:00 is treated like a market opening bell for the rest of your life.
-              </p>
+    <div className="app-stack px-0 pb-4">
+      <DataCard className="overflow-hidden p-4 sm:p-5">
+        <SectionHeader
+          eyebrow="Today"
+          title="Dashboard for defended time."
+          detail="Missions, reminders, protected lunch, and the amount of money earned while briefly refusing to be available."
+          action={<StatusPill label={workStatus.inWorkday ? "Workday live" : "Freedom mode"} tone={workStatus.inWorkday ? "alert" : "success"} />}
+        />
 
-              <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                <MetricCard label="Today earned in peace" value={fmtEuro(todayRevenue)} tone="pearl" />
-                <MetricCard label="Countdown to exit" value={freedomCountdown} tone="signal" />
-                <MetricCard label="Current rank" value={rank} tone="ink" />
-              </div>
-
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Link to="/missions" className="button-premium">
-                  Launch a ritual
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-                <Link to="/calendar" className="button-ghost">
-                  <CalendarRange className="h-4 w-4" />
-                  Open inverted calendar
-                </Link>
-              </div>
+        <div className="mt-4 grid gap-3 xl:grid-cols-[1.2fr_0.8fr]">
+          <div className="space-y-3">
+            <div className="mini-grid">
+              <KpiCard label="Earned while absent" value={fmtEuro(liveValue)} hint="Live counter based on your declared hourly rate." tone="accent" progress={Math.min(100, (liveValue / Math.max(1, prefs.hourlyRate)) * 100)} />
+              <KpiCard label="Lunch shield" value={lunchLeft > 0 ? fmtCompactMinutes(lunchLeft) : "armed"} hint="Sacred lunch remains a protected jurisdiction." tone="success" progress={Math.min(100, (lunchLeft / Math.max(1, prefs.lunchDurationMinutes)) * 100)} />
+              <KpiCard label="Current rank" value={rank} hint="Progress in the Academy of composed disengagement." tone="default" progress={lessonProgress} />
+              <KpiCard label="Rituals completed" value={String(stats.completedMissions)} hint="Each one a small refusal to become your inbox." tone="alert" progress={completionProgress} />
             </div>
 
-            <div className="relative flex items-center justify-center">
-              <div className="absolute h-56 w-56 rounded-full bg-primary/18 blur-3xl sm:h-72 sm:w-72" />
-              <div className="relative flex w-full max-w-sm flex-col items-center rounded-[2rem] border border-border bg-card/82 p-5 text-center shadow-soft backdrop-blur-xl">
-                <img src={mascot} alt="$OOO mascot" className="h-44 w-44 object-contain drop-shadow-[0_30px_60px_rgba(145,107,255,0.25)] sm:h-52 sm:w-52" width={208} height={208} />
-                <div className="mt-4 text-[10px] font-mono uppercase tracking-[0.3em] text-muted-foreground">
-                  {workMode ? "Contained mode" : "Freedom mode"}
-                </div>
-                <div className="mt-2 font-display text-2xl text-foreground">
-                  {workMode ? "Bart recommends tactical disappearance." : "Bart confirms your evening has officially started."}
-                </div>
-                <p className="mt-3 text-sm leading-6 text-muted-foreground">{quote}</p>
-              </div>
+            <div className="quick-rail">
+              <QuickActionCard
+                title="Launch a mission"
+                detail="Lunch, coffee, bathroom ritual, ghost meeting — all available with better choreography."
+                icon={<Orbit className="h-4 w-4" />}
+                tone="accent"
+                action={
+                  <Link to="/missions" className="button-premium !px-4 !py-3">
+                    Open
+                  </Link>
+                }
+              />
+              <QuickActionCard
+                title="Open the calendar brain"
+                detail="See what work has stolen, what lunch protects, and where the next conflict should be mocked."
+                icon={<CalendarRange className="h-4 w-4" />}
+                action={
+                  <Link to="/calendar" className="button-ghost !px-4 !py-3">
+                    View
+                  </Link>
+                }
+              />
             </div>
+
+            <div className="rounded-[1rem] border border-border bg-secondary/65 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-[10px] font-mono uppercase tracking-[0.22em] text-muted-foreground">Hourly rate</p>
+                  <div className="mt-2 font-mono text-[2rem] leading-none tabular-nums text-foreground">{fmtEuro(prefs.hourlyRate)}</div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button onClick={() => updateRate(-0.5)} className="button-ghost !h-10 !w-10 !rounded-full !p-0">−</button>
+                  <button onClick={() => updateRate(0.5)} className="button-premium !h-10 !w-10 !rounded-full !p-0">+</button>
+                </div>
+              </div>
+              <p className="mt-3 text-xs leading-5 text-muted-foreground">Not a moral judgement. Just better accounting for the economics of being briefly unavailable.</p>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <div className="data-card overflow-hidden p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-[10px] font-mono uppercase tracking-[0.24em] text-muted-foreground">Bart doctrine</p>
+                  <h3 className="mt-2 font-display text-2xl leading-none text-foreground">
+                    {workStatus.inWorkday ? "Remain useful-looking, not available-looking." : "The evening is legally yours again."}
+                  </h3>
+                </div>
+                <img src={mascot} alt="Bart mascot" className="h-20 w-20 rounded-[1rem] object-cover object-center" width={80} height={80} />
+              </div>
+              <blockquote className="mt-4 rounded-[1rem] border border-border bg-secondary/70 p-4 text-sm leading-6 text-foreground">
+                “{tip}”
+              </blockquote>
+            </div>
+
+            {!prefs.completed ? (
+              <div className="data-card p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-mono uppercase tracking-[0.24em] text-muted-foreground">Quick start</p>
+                    <h3 className="mt-2 font-display text-2xl leading-none text-foreground">Teach the app your captivity window.</h3>
+                    <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                      Add work hours, lunch time, and hourly pay so Today stops guessing and starts keeping receipts.
+                    </p>
+                  </div>
+                  <Coins className="mt-1 h-5 w-5 text-primary" />
+                </div>
+                <button onClick={() => setWizardOpen(true)} className="button-premium mt-4 w-full">
+                  Start quick setup
+                </button>
+              </div>
+            ) : (
+              <div className="data-card p-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-mono uppercase tracking-[0.24em] text-muted-foreground">Profile doctrine</p>
+                    <h3 className="mt-2 font-display text-xl leading-none text-foreground">{prefs.workdayStart} → {prefs.workdayEnd}</h3>
+                    <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                      Lunch begins at {prefs.lunchStart} for {prefs.lunchDurationMinutes} minutes. The app can now judge meetings with evidence.
+                    </p>
+                  </div>
+                  <button onClick={() => setWizardOpen(true)} className="button-ghost !px-4 !py-3">
+                    Edit
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
+      </DataCard>
 
-        <aside className="surface-panel p-5 sm:p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-mono uppercase tracking-[0.28em] text-muted-foreground">Daily brief</p>
-              <h2 className="mt-2 font-display text-2xl text-foreground">Next sacred moments</h2>
-            </div>
-            <div className="rounded-full border border-border bg-secondary p-3 text-primary">
-              <Orbit className="h-5 w-5" />
-            </div>
-          </div>
-          <div className="mt-5 space-y-3">
-            {schedule.map((item) => (
-              <TimelineRow key={item.label} {...item} />
+      <div className="grid gap-3 xl:grid-cols-[0.94fr_1.06fr]">
+        <DataCard className="p-4 sm:p-5">
+          <SectionHeader
+            eyebrow="Sacred reminders"
+            title="Conflicts worth mocking"
+            detail="Inverse reminders are where the app becomes useful, sarcastic, and slightly protective."
+            action={<Bell className="h-4 w-4 text-primary" />}
+          />
+          <div className="mt-4 space-y-3">
+            {reminders.map((reminder) => (
+              <div key={reminder.id} className="action-card">
+                <div className="icon-pill">
+                  <Bell className="h-4 w-4" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <h3 className="font-display text-lg leading-none text-foreground">{reminder.title}</h3>
+                    <StatusPill label={reminder.timeLabel} tone={reminder.tone} />
+                  </div>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">{reminder.body}</p>
+                </div>
+              </div>
             ))}
           </div>
-          <div className="mt-5 rounded-3xl border border-border bg-secondary/70 p-4">
-            <div className="text-[10px] font-mono uppercase tracking-[0.24em] text-muted-foreground">Hourly rate input</div>
-            <div className="mt-3 flex items-center gap-3 rounded-2xl border border-border bg-card px-3 py-3">
-              <span className="font-mono text-lg text-foreground">€</span>
-              <input
-                type="number"
-                inputMode="decimal"
-                min={1}
-                value={hourlyInput}
-                onChange={(event) => updateRate(event.target.value)}
-                className="w-full bg-transparent font-mono text-2xl text-foreground outline-none"
-              />
-              <span className="text-xs font-mono uppercase tracking-[0.24em] text-muted-foreground">/h</span>
-            </div>
-            <p className="mt-3 text-xs leading-5 text-muted-foreground">Not judgement. Just a cleaner way to price your beautifully managed absence.</p>
-          </div>
-        </aside>
-      </section>
+        </DataCard>
 
-      <section className="grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
-        <div className="surface-panel p-5 sm:p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-mono uppercase tracking-[0.28em] text-muted-foreground">Mission launcher</p>
-              <h2 className="mt-2 font-display text-2xl text-foreground">Pick an alibi</h2>
-            </div>
-            <Link to="/missions" className="text-xs font-mono uppercase tracking-[0.24em] text-primary">
-              View all
-            </Link>
-          </div>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-            {MISSIONS.map((mission) => (
+        <DataCard className="p-4 sm:p-5">
+          <SectionHeader
+            eyebrow="Mission rail"
+            title="Pick your alibi"
+            detail="The core rituals now live where they should: on Today, one thumb away from execution."
+            action={
+              <Link to="/missions" className="button-ghost !px-4 !py-3">
+                All missions
+              </Link>
+            }
+          />
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            {MISSIONS.slice(0, 4).map((mission) => (
               <Link key={mission.id} to="/missions" className="mission-tile">
-                <div className="flex items-center justify-between">
-                  <span className="rounded-full border border-border bg-secondary px-2 py-1 text-[10px] font-mono uppercase tracking-[0.22em] text-muted-foreground">
-                    {mission.kicker}
+                <div className="flex items-center justify-between gap-3">
+                  <StatusPill label={mission.kicker} tone="default" />
+                  <span className="text-[10px] font-mono uppercase tracking-[0.22em] text-primary">
+                    {mission.defaultMinutes ? `${mission.defaultMinutes}m` : "Manual"}
                   </span>
-                  <span className="text-xs font-mono uppercase tracking-[0.2em] text-primary">{mission.defaultMinutes ? `${mission.defaultMinutes}m` : "Manual"}</span>
                 </div>
-                <h3 className="mt-4 font-display text-xl text-foreground">{mission.name}</h3>
-                <p className="mt-2 text-sm leading-6 text-muted-foreground">{mission.ruleLine}</p>
+                <h3 className="mt-4 font-display text-2xl leading-none text-foreground">{mission.name}</h3>
+                <p className="mt-3 text-sm leading-6 text-muted-foreground">{mission.ruleLine}</p>
               </Link>
             ))}
           </div>
-        </div>
-
-        <div className="surface-panel p-5 sm:p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-mono uppercase tracking-[0.28em] text-muted-foreground">Dashboard</p>
-              <h2 className="mt-2 font-display text-2xl text-foreground">Peace-earned analytics</h2>
-            </div>
-            <div className="rounded-full border border-border bg-secondary px-3 py-1 text-[10px] font-mono uppercase tracking-[0.24em] text-muted-foreground">
-              Local only
-            </div>
-          </div>
-          <div className="mt-5 grid gap-3 sm:grid-cols-3">
-            <MiniStat label="Mission count" value={stats.completedMissions.toString()} />
-            <MiniStat label="Lifetime peace" value={fmtEuro(stats.lifetimeEuros)} />
-            <MiniStat label="Lessons open" value={`${stats.unlockedLessons}/100`} />
-          </div>
-          <div className="mt-5 rounded-[1.75rem] border border-border bg-secondary/70 p-4">
-            <p className="text-[10px] font-mono uppercase tracking-[0.24em] text-muted-foreground">Bart memo</p>
-            <p className="mt-3 font-display text-2xl text-foreground">Your calendar should look like it respects you.</p>
-            <p className="mt-3 text-sm leading-6 text-muted-foreground">
-              If free time only appears as leftover crumbs between obligations, the system is not organised. It is merely confident.
-            </p>
-          </div>
-          <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            <Link to="/academy" className="panel-link">
-              Learn the art of being more Bart
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-            <Link to="/ticker" className="panel-link">
-              Open the $OOO market board
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
-      </section>
-    </div>
-  );
-}
-
-function MetricCard({ label, value, tone }: { label: string; value: string; tone: "ink" | "pearl" | "signal" }) {
-  return (
-    <div className="rounded-[1.5rem] border border-border bg-card/82 p-4 shadow-soft">
-      <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-muted-foreground">{label}</div>
-      <div className="mt-2 font-display text-2xl text-foreground" style={{ color: `var(--color-${tone})` }}>
-        {value}
+        </DataCard>
       </div>
-    </div>
-  );
-}
 
-function TimelineRow({ label, time, icon: Icon, tone, copy }: { label: string; time: number; icon: typeof Bell; tone: "pearl" | "success" | "signal"; copy: string }) {
-  return (
-    <div className="rounded-[1.5rem] border border-border bg-card/80 p-4 transition-transform duration-300 hover:-translate-y-0.5">
-      <div className="flex items-start gap-3">
-        <span className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-full border" style={{ borderColor: `var(--color-${tone})`, color: `var(--color-${tone})` }}>
-          <Icon className="h-4 w-4" />
-        </span>
-        <div className="flex-1">
-          <div className="flex items-center justify-between gap-3">
-            <h3 className="font-display text-lg text-foreground">{label}</h3>
-            <span className="text-xs font-mono uppercase tracking-[0.2em] text-muted-foreground">in {fmtCompactMinutes(Math.max(0, time))}</span>
+      <div className="grid gap-3 lg:grid-cols-2">
+        <DataCard className="p-4 sm:p-5">
+          <SectionHeader eyebrow="Protected numbers" title="The dashboard should count like a device, not a brochure." />
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div className="kpi-card kpi-card-success">
+              <p className="text-[10px] font-mono uppercase tracking-[0.22em] text-muted-foreground">Lifetime peace</p>
+              <div className="mt-3 font-mono text-[1.9rem] leading-none tabular-nums text-foreground">{fmtEuro(stats.lifetimeEuros)}</div>
+              <p className="mt-2 text-xs leading-5 text-muted-foreground">Accumulated through tactical pauses and believable absence.</p>
+            </div>
+            <div className="kpi-card kpi-card-accent">
+              <p className="text-[10px] font-mono uppercase tracking-[0.22em] text-muted-foreground">Unlocked lessons</p>
+              <div className="mt-3 font-mono text-[1.9rem] leading-none tabular-nums text-foreground">{stats.unlockedLessons}/100</div>
+              <p className="mt-2 text-xs leading-5 text-muted-foreground">Sharpening the doctrine one quotable truth at a time.</p>
+            </div>
           </div>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">{copy}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
+        </DataCard>
 
-function MiniStat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-[1.4rem] border border-border bg-card/80 p-4">
-      <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-muted-foreground">{label}</div>
-      <div className="mt-2 font-display text-2xl text-foreground">{value}</div>
+        <DataCard className="p-4 sm:p-5">
+          <SectionHeader eyebrow="Base features" title="Four systems. One absurdist control layer." />
+          <div className="mt-4 space-y-3">
+            <QuickActionCard title="Calendar" detail="Protected lunch, meeting conflicts, and work compressed into its correct scale." icon={<CalendarRange className="h-4 w-4" />} action={<Link to="/calendar" className="panel-link !w-auto !px-4 !py-3">Open <ArrowRight className="h-4 w-4" /></Link>} />
+            <QuickActionCard title="Wisdom notifications" detail="Dry alerts for lunch defence, liberation hour, and calendar crimes committed in daylight." icon={<Bell className="h-4 w-4" />} tone="alert" />
+            <QuickActionCard title="Missions" detail="Fast-launch rituals with haptics, stronger motion, and cleaner consequence tracking." icon={<Orbit className="h-4 w-4" />} tone="accent" />
+            <QuickActionCard title="Academy" detail="A progression system for people who want their boundaries explained like policy." icon={<BookOpenText className="h-4 w-4" />} tone="success" action={<Link to="/academy" className="panel-link !w-auto !px-4 !py-3">Study <Sparkles className="h-4 w-4" /></Link>} />
+          </div>
+        </DataCard>
+      </div>
+
+      <OnboardingWizard
+        open={wizardOpen}
+        onOpenChange={setWizardOpen}
+        onSaved={(nextPrefs) => {
+          setPrefs(nextPrefs);
+          setStats(loadStats());
+        }}
+      />
     </div>
   );
 }

@@ -20,56 +20,56 @@ export const MISSIONS: Mission[] = [
   {
     id: "lunch",
     icon: "utensils",
-    name: "Almoço Sagrado",
+    name: "Sacred Lunch",
     kicker: "Protected block",
-    ruleLine: "É agenda blindada. Se insistirem, insistem contra a civilização.",
+    ruleLine: "Calendar law: lunch is a border, not a suggestion.",
     defaultMinutes: 60,
-    startLine: "Almoço em curso. A tua alma saiu do Slack e foi sentar-se ao sol.",
-    endLine: (euros) => `Regressaste composto. A empresa financiou ${euros} de digestão estratégica.`,
+    startLine: "Lunch is now under protection. Any meeting arriving here is acting with intent.",
+    endLine: (euros) => `You returned nourished and morally correct. The company financed ${euros} of tactical digestion.`,
     colorVar: "pearl",
   },
   {
     id: "wc",
     icon: "coins",
-    name: "WC Pago",
+    name: "Paid Bathroom Ritual",
     kicker: "Revenue ritual",
-    ruleLine: "A pausa é íntima. O salário continua público.",
+    ruleLine: "A private pause with public payroll implications.",
     defaultMinutes: 7,
-    startLine: "Estás temporariamente indisponível para o capitalismo. Excelente decisão.",
-    endLine: (euros) => `${euros} de paz adquirida. O teu manager patrocinou silêncio premium.`,
+    startLine: "You are temporarily unavailable to capitalism. A refined choice.",
+    endLine: (euros) => `${euros} secured in elegant silence. Your manager funded premium stillness.`,
     colorVar: "success",
   },
   {
     id: "coffee",
     icon: "coffee",
-    name: "Café Estendido",
+    name: "Extended Coffee",
     kicker: "Soft escape",
-    ruleLine: "Tecnicamente disponível. Tecnicamente é uma palavra generosa.",
+    ruleLine: "Technically reachable. Spiritually offshore.",
     defaultMinutes: 15,
-    startLine: "O café está a alinhar expectativas. Tu estás só a respirar melhor.",
-    endLine: (euros) => `Pausa concluída. ${euros} faturados com postura impecável e cafeína.`,
+    startLine: "Coffee is aligning expectations. You are simply breathing again.",
+    endLine: (euros) => `Pause concluded. ${euros} invoiced through posture, aroma, and plausible deniability.`,
     colorVar: "ink",
   },
   {
     id: "ghost",
     icon: "ghost",
-    name: "Reunião Fantasma",
+    name: "Ghost Meeting",
     kicker: "Calendar camouflage",
-    ruleLine: "Bloqueias o tempo. A reunião não existe. A autoridade sim.",
+    ruleLine: "Block the time. The meeting does not need to exist for the authority to work.",
     defaultMinutes: 45,
-    startLine: "Estás bloqueado em calendário. É a forma mais elegante de desaparecer.",
-    endLine: (euros) => `A reunião evaporou-se. ${euros} convertidos em presença performativa.`,
+    startLine: "You are now visibly occupied by something unverifiable. Perfect.",
+    endLine: (euros) => `The meeting dissolved on contact. ${euros} converted into performative presence.`,
     colorVar: "signal",
   },
   {
     id: "focus",
     icon: "focus",
-    name: "Deep Focus Falso",
+    name: "Deep Focus Fiction",
     kicker: "Silent theatre",
-    ruleLine: "Status: concentrado. Realidade: indisponível para absurdos alheios.",
+    ruleLine: "Status: focused. Reality: protected from nonsense.",
     defaultMinutes: 25,
-    startLine: "Entraste em foco profundo. O que isso significa não é do interesse de ninguém.",
-    endLine: (euros) => `Sessão encerrada. ${euros} ganhos a parecer intensamente ocupado.`,
+    startLine: "Deep focus has begun. Definitions are being kept deliberately vague.",
+    endLine: (euros) => `Session closed. ${euros} earned while appearing devastatingly intent.`,
     colorVar: "ink",
   },
   {
@@ -77,18 +77,18 @@ export const MISSIONS: Mission[] = [
     icon: "file",
     name: "Doctor's Note",
     kicker: "Official excuse",
-    ruleLine: "Documento solene para sintomas que a cultura corporate finge não ver.",
+    ruleLine: "A solemn document for symptoms corporate culture keeps trying to rename.",
     defaultMinutes: 0,
-    startLine: "Ficas oficialmente dispensado de entusiasmo performativo por ordem médica satírica.",
-    endLine: () => "Atestado emitido. Recupera da produtividade como quem sai de um culto.",
+    startLine: "You are now medically exempt from performative enthusiasm.",
+    endLine: () => "Certificate issued. Recover from productivity like someone leaving a tasteful cult.",
     colorVar: "signal",
   },
 ];
 
-export type Rank = "Estagiário" | "Office Drone" | "Senior Slacker" | "Bart Operative" | "OOO Oracle";
+export type Rank = "Intern" | "Office Drone" | "Senior Slacker" | "Bart Operative" | "OOO Oracle";
 
 export const RANKS: { name: Rank; min: number }[] = [
-  { name: "Estagiário", min: 0 },
+  { name: "Intern", min: 0 },
   { name: "Office Drone", min: 50 },
   { name: "Senior Slacker", min: 200 },
   { name: "Bart Operative", min: 500 },
@@ -96,7 +96,7 @@ export const RANKS: { name: Rank; min: number }[] = [
 ];
 
 export function rankFor(points: number): Rank {
-  return RANKS.reduce<Rank>((acc, rank) => (points >= rank.min ? rank.name : acc), "Estagiário");
+  return RANKS.reduce<Rank>((acc, rank) => (points >= rank.min ? rank.name : acc), "Intern");
 }
 
 export type Stats = {
@@ -109,7 +109,25 @@ export type Stats = {
   installDate: string;
 };
 
+export type OnboardingPrefs = {
+  workdayStart: string;
+  workdayEnd: string;
+  lunchStart: string;
+  lunchDurationMinutes: number;
+  hourlyRate: number;
+  completed: boolean;
+};
+
+export type Reminder = {
+  id: string;
+  title: string;
+  body: string;
+  timeLabel: string;
+  tone: "default" | "alert" | "success" | "accent";
+};
+
 const STATS_KEY = "ooo.stats.v2";
+const PREFS_KEY = "ooo.prefs.v1";
 
 function defaultStats(): Stats {
   return {
@@ -120,6 +138,17 @@ function defaultStats(): Stats {
     unlockedLessons: 4,
     completedMissions: 0,
     installDate: "2026-04-22T00:00:00.000Z",
+  };
+}
+
+function defaultPrefs(): OnboardingPrefs {
+  return {
+    workdayStart: "09:00",
+    workdayEnd: "17:00",
+    lunchStart: "13:00",
+    lunchDurationMinutes: 60,
+    hourlyRate: 14,
+    completed: false,
   };
 }
 
@@ -137,6 +166,28 @@ export function loadStats(): Stats {
 export function saveStats(stats: Stats) {
   if (typeof window === "undefined") return;
   localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+}
+
+export function loadPrefs(): OnboardingPrefs {
+  if (typeof window === "undefined") return defaultPrefs();
+  try {
+    const raw = localStorage.getItem(PREFS_KEY);
+    if (!raw) return { ...defaultPrefs(), hourlyRate: loadStats().hourlyRate };
+    return { ...defaultPrefs(), ...JSON.parse(raw) };
+  } catch {
+    return defaultPrefs();
+  }
+}
+
+export function savePrefs(prefs: OnboardingPrefs) {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
+  const stats = loadStats();
+  saveStats({ ...stats, hourlyRate: prefs.hourlyRate });
+}
+
+export function hasCompletedOnboarding() {
+  return loadPrefs().completed;
 }
 
 export function eurosFor(seconds: number, hourlyRate: number): number {
@@ -168,55 +219,132 @@ export function fmtCompactMinutes(totalMinutes: number): string {
   return `${totalMinutes}m`;
 }
 
+export function timeToMinutes(value: string): number {
+  const [hours, minutes] = value.split(":").map((part) => Number(part));
+  return hours * 60 + minutes;
+}
+
+export function formatShortTime(value: string): string {
+  return value;
+}
+
+export function getWorkStatus(date = new Date(), prefs = loadPrefs()) {
+  const day = date.getDay();
+  if (day === 0 || day === 6) {
+    return { inWorkday: false, untilEndMinutes: 0, minutesSinceStart: 0 };
+  }
+
+  const nowMinutes = date.getHours() * 60 + date.getMinutes();
+  const start = timeToMinutes(prefs.workdayStart);
+  const end = timeToMinutes(prefs.workdayEnd);
+  const inWorkday = nowMinutes >= start && nowMinutes < end;
+
+  return {
+    inWorkday,
+    untilEndMinutes: inWorkday ? Math.max(0, end - nowMinutes) : 0,
+    minutesSinceStart: inWorkday ? Math.max(0, nowMinutes - start) : 0,
+  };
+}
+
+export function calculateLiveEarnings(date = new Date(), prefs = loadPrefs()) {
+  const { inWorkday, minutesSinceStart } = getWorkStatus(date, prefs);
+  if (!inWorkday) return 0;
+  const seconds = minutesSinceStart * 60 + date.getSeconds();
+  return eurosFor(seconds, prefs.hourlyRate);
+}
+
+export function getProtectedMinutesLeft(date = new Date(), prefs = loadPrefs()) {
+  const nowMinutes = date.getHours() * 60 + date.getMinutes();
+  const lunchStart = timeToMinutes(prefs.lunchStart);
+  const lunchEnd = lunchStart + prefs.lunchDurationMinutes;
+
+  if (nowMinutes < lunchStart) return lunchStart - nowMinutes;
+  if (nowMinutes < lunchEnd) return lunchEnd - nowMinutes;
+  return 0;
+}
+
+export function getSacredReminders(date = new Date(), prefs = loadPrefs()): Reminder[] {
+  const { inWorkday, untilEndMinutes } = getWorkStatus(date, prefs);
+  const lunchLeft = getProtectedMinutesLeft(date, prefs);
+  const beforeLunch = Math.max(0, timeToMinutes(prefs.lunchStart) - (date.getHours() * 60 + date.getMinutes()));
+
+  return [
+    {
+      id: "lunch-conflict",
+      title: "Lunch defence protocol",
+      body: "A 12:45 meeting is attempting to occupy territory that clearly belongs to lunch. This is now a boundary issue.",
+      timeLabel: beforeLunch > 0 ? `in ${fmtCompactMinutes(beforeLunch)}` : "active now",
+      tone: "alert",
+    },
+    {
+      id: "lunch-start",
+      title: "Nutrition has escalated",
+      body: lunchLeft > 0
+        ? "Please stop working immediately. Your calendar is now expected to respect food."
+        : "Lunch has passed. Review the damage and restore order tomorrow.",
+      timeLabel: lunchLeft > 0 ? `${fmtCompactMinutes(lunchLeft)} left` : formatShortTime(prefs.lunchStart),
+      tone: lunchLeft > 0 ? "success" : "default",
+    },
+    {
+      id: "liberation",
+      title: "17:00 liberation window",
+      body: inWorkday
+        ? "Do not start anything tragic. The day is already trying to end with dignity."
+        : "The office has lost jurisdiction. Leave the narrative there.",
+      timeLabel: inWorkday ? `in ${fmtCompactMinutes(untilEndMinutes)}` : "after hours",
+      tone: "accent",
+    },
+  ];
+}
+
 export const LESSONS: string[] = [
-  "Responde a emails às 8h59 e às 17h01. Parecerás dedicado sem conviver muito com o problema.",
-  "'Vou alinhar com a equipa' significa apenas que ainda não queres responder a ninguém.",
-  "Marca um bloqueio às 16h45. O medo administrativo faz o resto.",
-  "Se o status disser focus, 70% das pessoas desistem por respeito ou superstição.",
-  "Toda a call com agenda vazia é um pedido elegante para estares ausente em espírito.",
-  "'Estou a rever prioridades' é português corporate para 'não hoje'.",
-  "Quem controla o calendário controla a narrativa e, por arrasto, a paz.",
-  "Há emails que merecem resposta. Há outros que merecem um café primeiro. Normalmente, um café longo.",
-  "Sexta às 16h é um estado de consciência, não uma hora.",
-  "Sempre que disseres 'vamos deixar assíncrono', uma reunião morre em silêncio.",
-  "A tua disponibilidade é um rumor. Não o confirmes com pressa.",
-  "Se parecer estratégico, até o descanso passa por liderança.",
-  "Uma pausa curta no momento certo vale mais do que 40 minutos a fingir concentração.",
-  "Nunca digas 'não fiz'. Diz 'não fazia sentido avançar sem contexto'.",
-  "Há um tipo de produtividade que só existe porque alguém decidiu medir sofrimento.",
-  "A agenda perfeita tem espaço. O resto é opressão com cores suaves.",
-  "Responder depressa cria expectativa. Responder bem cria distância profissional.",
-  "Toda a empresa respeita mais um bloco chamado review do que um bloco chamado sanidade.",
-  "O teu almoço não é negociável. É só mal defendido em muitas organizações.",
-  "Quando disserem 'rápido', prepara-te para um abuso de calendário em traje casual.",
+  "Reply at 08:59 and again at 17:01. You will look diligent without developing a close relationship with the problem.",
+  "'Let me align with the team' means you would rather not answer anyone yet.",
+  "Block 16:45 with something vague. Administrative fear usually finishes the job.",
+  "If your status says focus, most people withdraw out of respect, superstition, or both.",
+  "Any call without an agenda is simply absence trying to dress business casual.",
+  "'I am reviewing priorities' is corporate for 'absolutely not today'.",
+  "Who controls the calendar controls the narrative and, by extension, the blood pressure.",
+  "Some emails deserve a response. Others deserve coffee first. Usually long coffee.",
+  "Friday at 16:00 is a spiritual condition, not a time.",
+  "Every time you say 'let's keep this async', a meeting dies quietly somewhere.",
+  "Your availability should remain a rumour. Do not confirm it too fast.",
+  "If it sounds strategic, even rest begins to resemble leadership.",
+  "A short pause at the right moment is worth more than forty minutes of decorative concentration.",
+  "Never say 'I didn't do it'. Say 'it would have been irresponsible to move without context'.",
+  "A perfect schedule contains empty space. The rest is oppression with softer colours.",
+  "Responding quickly creates expectation. Responding well creates professional distance.",
+  "A calendar block called review gets more respect than one called sanity. Act accordingly.",
+  "Lunch is not negotiable. It is merely under-defended in many organisations.",
+  "When someone says 'quick question', prepare for a hostage situation with softer branding.",
 ];
 
 while (LESSONS.length < 100) {
-  LESSONS.push(`Lição #${LESSONS.length + 1}: protege o teu tempo como quem esconde ouro num documento partilhado.`);
+  LESSONS.push(`Lesson #${LESSONS.length + 1}: protect your time the way finance hides bad news inside a deck.`);
 }
 
 export const VIRAL_QUOTES = [
-  "Descansar é uma forma discreta de insubordinação.",
-  "O burnout nunca foi prova de carácter. Só de contexto tóxico.",
-  "Bart recomenda calma. O sistema prefere espetáculo.",
-  "Se tudo é urgente, nada merece a tua pulsação.",
-  "A agenda existe para te servir, não para te perseguir.",
-  "Há dias em que sobreviver ao corporate já conta como performance sólida.",
+  "Rest is a discreet form of insubordination.",
+  "Burnout was never proof of character. Only of context.",
+  "Bart recommends composure. The system prefers theatre.",
+  "If everything is urgent, nothing deserves your pulse.",
+  "The calendar should serve you, not stalk you.",
+  "Some days surviving corporate life already counts as exemplary output.",
 ];
 
 export const BART_TIPS = [
-  "Marca tempo livre como se fosse governance. Ninguém questiona a palavra certa com convicção suficiente.",
-  "O melhor momento para parecer indisponível é cinco minutos antes de alguém precisar de ti.",
-  "Se uma tarefa te drena a alma, parte-a em blocos e desaparece entre eles.",
-  "A tua energia não é um recurso infinito, embora alguns managers tenham fantasia de mineração.",
-  "Há uma diferença nobre entre colaborar e estar permanentemente acessível. Aprende-a e protege-a.",
+  "Name free time like governance and no one will challenge it with enough confidence.",
+  "The best moment to appear unavailable is five minutes before someone remembers you exist.",
+  "If a task drains your soul, divide it into blocks and disappear between them.",
+  "Your energy is not an infinite resource, despite several managers holding mining fantasies.",
+  "There is a noble difference between collaborating and being permanently reachable. Learn it and defend it.",
 ];
 
 export const CALENDAR_TEMPLATES = [
-  { label: "Tarde livre estratégica", duration: 3, start: 14, type: "free" as const },
-  { label: "Sexta-fantasma", duration: 6, start: 11, type: "free" as const },
-  { label: "Reunião que já desistiu de existir", duration: 1, start: 15, type: "free" as const },
-  { label: "Faixa de damage control", duration: 2, start: 9, type: "work" as const },
+  { label: "Strategic free afternoon", duration: 3, start: 14, type: "free" as const },
+  { label: "Ghost Friday", duration: 6, start: 11, type: "free" as const },
+  { label: "Meeting that lost the will to exist", duration: 1, start: 15, type: "free" as const },
+  { label: "Damage-control slab", duration: 2, start: 9, type: "work" as const },
 ];
 
 export function safeVibrate(pattern: number | number[]) {
@@ -230,10 +358,10 @@ export function safeVibrate(pattern: number | number[]) {
 
 export function triggerHaptic(kind: "launch" | "confirm" | "complete" | "liberation") {
   const patterns = {
-    launch: [20, 30, 20],
-    confirm: 28,
-    complete: [35, 50, 35, 80, 60],
-    liberation: [50, 40, 50, 40, 120],
+    launch: [12, 18, 12],
+    confirm: 24,
+    complete: [20, 24, 20, 46, 40],
+    liberation: [30, 24, 30, 24, 68],
   } as const;
   safeVibrate(patterns[kind]);
 }
@@ -274,10 +402,7 @@ export function playBell(frequency = 440, duration = 0.6) {
 }
 
 export function isWorkHours(date = new Date()): boolean {
-  const day = date.getDay();
-  if (day === 0 || day === 6) return false;
-  const hour = date.getHours();
-  return hour >= 9 && hour < 17;
+  return getWorkStatus(date).inWorkday;
 }
 
 export function minutesUntil(hour: number, minute = 0, now = new Date()): number {

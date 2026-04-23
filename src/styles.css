@@ -44,49 +44,50 @@
 }
 
 :root {
-  --radius: 1.4rem;
+  --radius: 1rem;
 
   --background: oklch(0.14 0.015 285);
-  --foreground: oklch(0.96 0.01 285);
+  --foreground: oklch(0.965 0.008 320);
 
-  --card: oklch(0.19 0.016 285 / 0.88);
-  --card-foreground: oklch(0.97 0.008 285);
+  --card: oklch(0.19 0.014 286 / 0.9);
+  --card-foreground: oklch(0.97 0.008 320);
 
-  --popover: oklch(0.18 0.015 285 / 0.94);
-  --popover-foreground: oklch(0.97 0.008 285);
+  --popover: oklch(0.17 0.014 286 / 0.95);
+  --popover-foreground: oklch(0.97 0.008 320);
 
   --primary: oklch(0.67 0.21 309);
   --primary-foreground: oklch(0.985 0.005 300);
 
-  --secondary: oklch(0.24 0.014 286 / 0.9);
-  --secondary-foreground: oklch(0.95 0.008 285);
+  --secondary: oklch(0.23 0.014 286 / 0.92);
+  --secondary-foreground: oklch(0.95 0.008 320);
 
-  --muted: oklch(0.26 0.014 286 / 0.82);
-  --muted-foreground: oklch(0.73 0.02 290);
+  --muted: oklch(0.26 0.014 286 / 0.84);
+  --muted-foreground: oklch(0.73 0.016 300);
 
-  --accent: oklch(0.91 0.025 326);
-  --accent-foreground: oklch(0.16 0.014 285);
+  --accent: oklch(0.92 0.018 320);
+  --accent-foreground: oklch(0.15 0.014 286);
 
   --destructive: oklch(0.64 0.23 24);
   --destructive-foreground: oklch(0.98 0.004 25);
 
-  --border: oklch(0.31 0.018 287 / 0.76);
-  --input: oklch(0.24 0.014 286 / 0.85);
+  --border: oklch(0.31 0.018 287 / 0.74);
+  --input: oklch(0.24 0.014 286 / 0.88);
   --ring: oklch(0.67 0.21 309 / 0.55);
 
   --pearl: oklch(0.95 0.013 320);
   --obsidian: oklch(0.14 0.015 285);
   --ink: oklch(0.67 0.21 309);
-  --signal: oklch(0.73 0.18 20);
-  --success: oklch(0.76 0.14 158);
-  --chrome: oklch(0.17 0.014 285 / 0.84);
+  --signal: oklch(0.72 0.18 25);
+  --success: oklch(0.78 0.13 158);
+  --chrome: oklch(0.165 0.014 286 / 0.88);
 
-  --gradient-page: radial-gradient(circle at top, color-mix(in oklab, var(--ink) 18%, transparent) 0%, transparent 35%), linear-gradient(180deg, oklch(0.18 0.018 286) 0%, var(--background) 100%);
-  --gradient-panel: linear-gradient(145deg, color-mix(in oklab, var(--card) 84%, white 2%) 0%, color-mix(in oklab, var(--primary) 10%, var(--card)) 100%);
-  --gradient-hero: linear-gradient(140deg, color-mix(in oklab, var(--card) 88%, transparent) 0%, color-mix(in oklab, var(--primary) 16%, var(--card)) 60%, color-mix(in oklab, var(--pearl) 8%, var(--card)) 100%);
-  --shadow-glow: 0 24px 60px -28px color-mix(in oklab, var(--primary) 70%, transparent);
-  --shadow-soft: 0 18px 60px -28px oklch(0 0 0 / 0.5);
-  --shadow-strong: 0 30px 90px -40px oklch(0 0 0 / 0.7);
+  --gradient-page: radial-gradient(circle at top, color-mix(in oklab, var(--ink) 20%, transparent) 0%, transparent 38%), linear-gradient(180deg, oklch(0.17 0.016 286) 0%, var(--background) 100%);
+  --gradient-panel: linear-gradient(145deg, color-mix(in oklab, var(--card) 92%, white 1.5%) 0%, color-mix(in oklab, var(--primary) 12%, var(--card)) 100%);
+  --gradient-elevated: linear-gradient(180deg, color-mix(in oklab, var(--card) 94%, white 1%) 0%, color-mix(in oklab, var(--secondary) 78%, var(--card)) 100%);
+  --gradient-app: linear-gradient(180deg, color-mix(in oklab, var(--background) 92%, black 2%) 0%, color-mix(in oklab, var(--background) 88%, var(--ink) 3%) 100%);
+  --shadow-glow: 0 20px 70px -34px color-mix(in oklab, var(--primary) 78%, transparent);
+  --shadow-soft: 0 16px 50px -30px oklch(0 0 0 / 0.58);
+  --shadow-strong: 0 34px 100px -48px oklch(0 0 0 / 0.72);
 }
 
 @layer base {
@@ -95,7 +96,8 @@
   }
 
   html,
-  body {
+  body,
+  #root {
     min-height: 100vh;
     background: var(--gradient-page);
     color: var(--color-foreground);
@@ -117,6 +119,13 @@
     letter-spacing: 0;
   }
 
+  button,
+  input,
+  textarea,
+  select {
+    outline: none;
+  }
+
   ::selection {
     background: color-mix(in oklab, var(--color-primary) 34%, transparent);
     color: var(--color-foreground);
@@ -128,18 +137,45 @@
     font-family: var(--font-mono);
   }
 
+  .app-frame {
+    position: relative;
+    min-height: 100vh;
+    background: var(--gradient-app);
+  }
+
+  .app-canvas {
+    margin-inline: auto;
+    width: 100%;
+    max-width: 1180px;
+    padding-inline: 0.75rem;
+  }
+
+  .app-stack {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .data-card,
   .surface-panel {
-    border: 1px solid color-mix(in oklab, var(--color-border) 92%, transparent);
+    border: 1px solid color-mix(in oklab, var(--color-border) 94%, transparent);
     background: color-mix(in oklab, var(--color-card) 96%, transparent);
     box-shadow: var(--shadow-soft);
-    border-radius: 1.9rem;
-    backdrop-filter: blur(20px);
+    border-radius: 1.2rem;
+    backdrop-filter: blur(22px);
+  }
+
+  .app-screen {
+    border: 1px solid color-mix(in oklab, var(--color-border) 92%, transparent);
+    background: linear-gradient(180deg, color-mix(in oklab, var(--color-card) 86%, transparent), color-mix(in oklab, var(--color-background) 78%, transparent));
+    box-shadow: var(--shadow-strong);
+    border-radius: 1.75rem;
+    backdrop-filter: blur(24px);
   }
 
   .hero-shell {
     border: 1px solid color-mix(in oklab, var(--color-border) 88%, transparent);
-    background: var(--gradient-hero);
-    border-radius: 2rem;
+    background: var(--gradient-panel);
+    border-radius: 1.4rem;
     box-shadow: var(--shadow-strong);
     backdrop-filter: blur(20px);
   }
@@ -150,11 +186,15 @@
     gap: 0.5rem;
   }
 
-  .badge-chip {
+  .badge-chip,
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
     border-radius: 999px;
     border: 1px solid color-mix(in oklab, var(--color-border) 88%, transparent);
-    background: color-mix(in oklab, var(--color-secondary) 80%, transparent);
-    padding: 0.45rem 0.8rem;
+    background: color-mix(in oklab, var(--color-secondary) 82%, transparent);
+    padding: 0.44rem 0.8rem;
     font-family: var(--font-mono);
     font-size: 0.63rem;
     text-transform: uppercase;
@@ -162,25 +202,31 @@
     color: var(--color-muted-foreground);
   }
 
+  .status-pill-default { color: var(--color-muted-foreground); }
+  .status-pill-alert { color: var(--color-signal); }
+  .status-pill-success { color: var(--color-success); }
+  .status-pill-accent { color: var(--color-primary); }
+
   .button-premium,
   .button-ghost,
   .panel-link {
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 0.6rem;
     border-radius: 999px;
     font-family: var(--font-mono);
     font-size: 0.7rem;
     text-transform: uppercase;
     letter-spacing: 0.2em;
-    transition: transform 240ms ease, box-shadow 240ms ease, border-color 240ms ease, background 240ms ease;
+    transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease, background 220ms ease;
   }
 
   .button-premium {
-    border: 1px solid color-mix(in oklab, var(--color-primary) 42%, transparent);
-    background: linear-gradient(135deg, color-mix(in oklab, var(--color-primary) 85%, white 4%), color-mix(in oklab, var(--color-primary) 55%, black 8%));
+    border: 1px solid color-mix(in oklab, var(--color-primary) 44%, transparent);
+    background: linear-gradient(135deg, color-mix(in oklab, var(--color-primary) 86%, white 4%), color-mix(in oklab, var(--color-primary) 54%, black 8%));
     color: var(--color-primary-foreground);
-    padding: 0.95rem 1.25rem;
+    padding: 0.9rem 1.15rem;
     box-shadow: var(--shadow-glow);
   }
 
@@ -189,9 +235,10 @@
     border: 1px solid color-mix(in oklab, var(--color-border) 90%, transparent);
     background: color-mix(in oklab, var(--color-secondary) 82%, transparent);
     color: var(--color-foreground);
-    padding: 0.95rem 1.2rem;
+    padding: 0.9rem 1.1rem;
   }
 
+  .pressable,
   .button-premium:hover,
   .button-ghost:hover,
   .panel-link:hover,
@@ -201,12 +248,12 @@
 
   .mission-tile {
     display: block;
-    border-radius: 1.6rem;
+    border-radius: 1.1rem;
     border: 1px solid color-mix(in oklab, var(--color-border) 90%, transparent);
     background: color-mix(in oklab, var(--color-card) 96%, transparent);
     padding: 1rem;
     box-shadow: var(--shadow-soft);
-    transition: transform 260ms ease, border-color 260ms ease, box-shadow 260ms ease, background 260ms ease;
+    transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease, background 220ms ease;
   }
 
   .mission-tile:hover {
@@ -220,6 +267,108 @@
     width: 100%;
   }
 
+  .kpi-card {
+    border-radius: 1rem;
+    border: 1px solid color-mix(in oklab, var(--color-border) 90%, transparent);
+    background: var(--gradient-elevated);
+    padding: 1rem;
+    box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.04);
+    color: var(--color-muted-foreground);
+  }
+
+  .kpi-card-default { color: var(--color-muted-foreground); }
+  .kpi-card-alert { color: var(--color-signal); }
+  .kpi-card-success { color: var(--color-success); }
+  .kpi-card-accent { color: var(--color-primary); }
+
+  .metric-track {
+    height: 0.35rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--color-secondary) 90%, transparent);
+  }
+
+  .metric-bar {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--color-primary), color-mix(in oklab, var(--color-pearl) 28%, var(--color-primary)));
+    box-shadow: var(--shadow-glow);
+  }
+
+  .action-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.9rem;
+    border-radius: 1rem;
+    border: 1px solid color-mix(in oklab, var(--color-border) 90%, transparent);
+    background: color-mix(in oklab, var(--color-card) 96%, transparent);
+    padding: 1rem;
+  }
+
+  .action-card-default { background: color-mix(in oklab, var(--color-card) 96%, transparent); }
+  .action-card-alert { background: linear-gradient(180deg, color-mix(in oklab, var(--color-signal) 8%, var(--color-card)), var(--color-card)); }
+  .action-card-success { background: linear-gradient(180deg, color-mix(in oklab, var(--color-success) 8%, var(--color-card)), var(--color-card)); }
+  .action-card-accent { background: linear-gradient(180deg, color-mix(in oklab, var(--color-primary) 10%, var(--color-card)), var(--color-card)); }
+
+  .icon-pill {
+    display: flex;
+    height: 2.8rem;
+    width: 2.8rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.95rem;
+    border: 1px solid color-mix(in oklab, var(--color-border) 88%, transparent);
+    background: color-mix(in oklab, var(--color-secondary) 84%, transparent);
+    color: var(--color-primary);
+    flex-shrink: 0;
+  }
+
+  .mini-grid {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .quick-rail {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .calendar-lane {
+    border-radius: 1rem;
+    border: 1px solid color-mix(in oklab, var(--color-border) 88%, transparent);
+    background: color-mix(in oklab, var(--color-card) 96%, transparent);
+    padding: 0.9rem;
+  }
+
+  .field-card {
+    display: grid;
+    gap: 0.55rem;
+    border-radius: 1rem;
+    border: 1px solid color-mix(in oklab, var(--color-border) 90%, transparent);
+    background: color-mix(in oklab, var(--color-secondary) 78%, transparent);
+    padding: 0.95rem 1rem;
+  }
+
+  .field-label {
+    font-family: var(--font-mono);
+    font-size: 0.63rem;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: var(--color-muted-foreground);
+  }
+
+  .field-input {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    padding: 0.2rem 0;
+    font-family: var(--font-mono);
+    font-size: 1.2rem;
+    line-height: 1;
+    color: var(--color-foreground);
+  }
+
   .bg-grid {
     background-image: linear-gradient(color-mix(in oklab, var(--color-border) 58%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in oklab, var(--color-border) 58%, transparent) 1px, transparent 1px);
     background-size: 34px 34px;
@@ -228,6 +377,18 @@
   .bg-noise {
     background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='120' height='120'><filter id='n'><feTurbulence baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.14'/></svg>");
     background-size: 220px;
+  }
+}
+
+@media (min-width: 768px) {
+  @layer utilities {
+    .mini-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .quick-rail {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 }
 
