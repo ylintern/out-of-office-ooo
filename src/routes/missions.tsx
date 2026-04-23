@@ -1,14 +1,15 @@
 import { MissionOverlay } from "@/components/MissionOverlay";
+import { DataCard, KpiCard, SectionHeader, StatusPill } from "@/components/dashboard/DashboardPrimitives";
 import { MISSIONS, triggerHaptic, type Mission, type MissionIcon } from "@/lib/ooo";
 import { createFileRoute } from "@tanstack/react-router";
-import { Coins, Coffee, Cross, Focus, Ghost, Orbit, UtensilsCrossed } from "lucide-react";
+import { Coins, Coffee, Cross, Focus, Ghost, Orbit, Sparkles, UtensilsCrossed } from "lucide-react";
 import { useState } from "react";
 
 export const Route = createFileRoute("/missions")({
   head: () => ({
     meta: [
       { title: "Missions · $OOO" },
-      { name: "description", content: "Launch cinematic rituals for lunch, bathroom breaks, ghost meetings, and other forms of polished resistance." },
+      { name: "description", content: "Launch rituals for lunch, coffee, bathroom breaks, ghost meetings, and other refined forms of resistance." },
     ],
   }),
   component: MissionsPage,
@@ -27,23 +28,23 @@ function MissionsPage() {
   const [active, setActive] = useState<Mission | null>(null);
 
   return (
-    <div className="space-y-4 px-3 pb-6 sm:px-0">
-      <section className="surface-panel p-5 sm:p-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="text-[10px] font-mono uppercase tracking-[0.28em] text-muted-foreground">Mission control</p>
-            <h1 className="mt-2 font-display text-4xl text-foreground">Rituals for strategic absence.</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-              Every mission now behaves like a premium system event: stronger visual identity, clean iconography, better pacing, and enough ceremony to make a basic pause feel like a justified executive decision.
-            </p>
-          </div>
-          <div className="rounded-full border border-border bg-secondary p-4 text-primary">
-            <Orbit className="h-5 w-5" />
-          </div>
+    <div className="app-stack px-0 pb-4">
+      <DataCard className="p-4 sm:p-5">
+        <SectionHeader
+          eyebrow="Mission control"
+          title="Rituals for strategic absence."
+          detail="Not a list of buttons — a launch surface for controlled disappearances with cleaner iconography, better pacing, and stronger tactile feedback."
+          action={<StatusPill label="High ceremony" tone="accent" />}
+        />
+        <div className="mt-4 mini-grid">
+          <KpiCard label="Available rituals" value={String(MISSIONS.length)} hint="The core actions that make Today actually useful." tone="accent" progress={100} />
+          <KpiCard label="Launch style" value="Haptic" hint="Short pulse on start, richer pattern on completion." tone="success" />
+          <KpiCard label="Icon language" value="No emojis" hint="Tone now lives in hierarchy, copy, and motion instead of sticker-tier decoration." tone="default" />
+          <KpiCard label="Overlay posture" value="Fullscreen" hint="Each ritual opens like a system event, not a tooltip with ambitions." tone="alert" />
         </div>
-      </section>
+      </DataCard>
 
-      <section className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
+      <div className="grid gap-3 xl:grid-cols-[1.04fr_0.96fr]">
         <div className="grid gap-3">
           {MISSIONS.map((mission) => {
             const Icon = iconMap[mission.icon];
@@ -58,7 +59,7 @@ function MissionsPage() {
               >
                 <div className="flex items-start gap-4">
                   <span
-                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border"
+                    className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[1rem] border"
                     style={{ borderColor: `var(--color-${mission.colorVar})`, color: `var(--color-${mission.colorVar})` }}
                   >
                     <Icon className="h-5 w-5" />
@@ -67,11 +68,9 @@ function MissionsPage() {
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
                         <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-muted-foreground">{mission.kicker}</div>
-                        <h2 className="mt-1 font-display text-2xl text-foreground">{mission.name}</h2>
+                        <h2 className="mt-1 font-display text-2xl leading-none text-foreground">{mission.name}</h2>
                       </div>
-                      <span className="rounded-full border border-border bg-secondary px-3 py-1 text-[10px] font-mono uppercase tracking-[0.22em] text-muted-foreground">
-                        {mission.defaultMinutes ? `${mission.defaultMinutes} min` : "Manual flow"}
-                      </span>
+                      <StatusPill label={mission.defaultMinutes ? `${mission.defaultMinutes} min` : "Manual flow"} tone="accent" />
                     </div>
                     <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">{mission.ruleLine}</p>
                     <div className="mt-4 inline-flex items-center gap-2 text-xs font-mono uppercase tracking-[0.2em] text-primary">
@@ -84,19 +83,21 @@ function MissionsPage() {
           })}
         </div>
 
-        <div className="surface-panel p-5 sm:p-6">
-          <p className="text-[10px] font-mono uppercase tracking-[0.28em] text-muted-foreground">UX posture</p>
-          <h2 className="mt-2 font-display text-3xl text-foreground">Not a list of buttons. A control room.</h2>
-          <p className="mt-4 text-sm leading-6 text-muted-foreground">
-            Missions now read like purposeful states: haptic launch, dramatic overlay, progress choreography, and copy sharp enough to sound like corporate policy written by someone who has emotionally resigned but kept the benefits.
-          </p>
-          <div className="mt-5 grid gap-3">
-            <InsightRow title="State-aware motion" copy="Pressed states lift, overlays bloom, and timers feel precise instead of decorative." />
-            <InsightRow title="Browser-safe haptics" copy="Short confirmation pulses on launch, richer completion patterns when the ritual lands." />
-            <InsightRow title="Icon-first system" copy="No emoji scaffolding. Tone now lives in the language, hierarchy, and motion." />
-          </div>
+        <div className="space-y-3">
+          <DataCard className="p-4 sm:p-5">
+            <SectionHeader eyebrow="Control room brief" title="Each mission should feel stateful." detail="Pressed states lift, overlays bloom, and timers behave like a real ritual instead of a novelty stopwatch." action={<div className="icon-pill"><Orbit className="h-4 w-4" /></div>} />
+            <div className="mt-4 space-y-3">
+              <InsightRow title="State-aware motion" copy="Press, release, and completion all carry different weight so the interaction feels intentional." />
+              <InsightRow title="Browser-safe haptics" copy="Short confirmations on launch, richer completion patterns when the ritual lands properly." />
+              <InsightRow title="Copy with doctrine" copy="Absurd, dry, and useful — like a legal memo written by someone already mentally outside the building." />
+            </div>
+          </DataCard>
+
+          <DataCard className="p-4 sm:p-5">
+            <SectionHeader eyebrow="Launch rail" title="Good defaults for bad calendars." detail="Lunch, coffee, and ghost meetings should be one-thumb decisions, not admin." action={<div className="icon-pill"><Sparkles className="h-4 w-4" /></div>} />
+          </DataCard>
         </div>
-      </section>
+      </div>
 
       {active ? <MissionOverlay mission={active} onClose={() => setActive(null)} /> : null}
     </div>
@@ -105,8 +106,8 @@ function MissionsPage() {
 
 function InsightRow({ title, copy }: { title: string; copy: string }) {
   return (
-    <div className="rounded-[1.5rem] border border-border bg-card/82 p-4">
-      <div className="font-display text-xl text-foreground">{title}</div>
+    <div className="rounded-[1rem] border border-border bg-card/82 p-4">
+      <div className="font-display text-xl leading-none text-foreground">{title}</div>
       <p className="mt-2 text-sm leading-6 text-muted-foreground">{copy}</p>
     </div>
   );

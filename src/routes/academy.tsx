@@ -1,3 +1,4 @@
+import { DataCard, KpiCard, SectionHeader, StatusPill } from "@/components/dashboard/DashboardPrimitives";
 import { LESSONS, RANKS, loadStats, rankFor, saveStats, triggerHaptic } from "@/lib/ooo";
 import { createFileRoute } from "@tanstack/react-router";
 import { BookOpenText, LockKeyhole, Sparkles } from "lucide-react";
@@ -7,14 +8,14 @@ export const Route = createFileRoute("/academy")({
   head: () => ({
     meta: [
       { title: "Academy · $OOO" },
-      { name: "description", content: "A sharper progression system for learning the darkly funny art of being more Bart." },
+      { name: "description", content: "A progression system for learning the quotable art of strategic absence." },
     ],
   }),
   component: AcademyPage,
 });
 
 function AcademyPage() {
-  const [stats, setStats] = useState({ hourlyRate: 14, lichPoints: 0, lifetimeEuros: 0, lifetimeSeconds: 0, unlockedLessons: 4, completedMissions: 0, installDate: "2026-04-22T00:00:00.000Z" });
+  const [stats, setStats] = useState(loadStats());
 
   useEffect(() => {
     setStats(loadStats());
@@ -35,77 +36,61 @@ function AcademyPage() {
   }
 
   return (
-    <div className="space-y-4 px-3 pb-6 sm:px-0">
-      <section className="surface-panel p-5 sm:p-6">
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <p className="text-[10px] font-mono uppercase tracking-[0.28em] text-muted-foreground">Bart Academy</p>
-            <h1 className="mt-2 font-display text-4xl text-foreground">A progression system, not a joke list.</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
-              Lessons now feel collectible, quotable, and slightly dangerous in the way good workplace advice often does. Dry delivery. Precise absurdity. Better hierarchy.
-            </p>
-          </div>
-          <div className="rounded-full border border-border bg-secondary p-4 text-primary">
-            <BookOpenText className="h-5 w-5" />
-          </div>
+    <div className="app-stack px-0 pb-4">
+      <DataCard className="p-4 sm:p-5">
+        <SectionHeader
+          eyebrow="Bart Academy"
+          title="Doctrine, not content marketing."
+          detail="Lessons should read like quotable policy for protecting time with a straight face and slightly dangerous calm."
+          action={<StatusPill label={rank} tone="accent" />}
+        />
+        <div className="mt-4 mini-grid">
+          <KpiCard label="Current rank" value={rank} hint="Your official standing in the school of composed disengagement." tone="accent" progress={Math.max(8, Math.min(100, progress))} />
+          <KpiCard label="Unlocked lessons" value={`${stats.unlockedLessons}/100`} hint="More lines ready to be screenshotted in quiet agreement." tone="success" progress={stats.unlockedLessons} />
+          <KpiCard label="Points to next" value={nextRank ? String(nextRank.min - stats.lichPoints) : "0"} hint="A few more rituals until the next title becomes legally yours." tone="default" />
+          <KpiCard label="Unlock posture" value="Tap to study" hint="Small reward, quick motion, no bloated gamification theatre." tone="alert" />
         </div>
-      </section>
+      </DataCard>
 
-      <section className="grid gap-4 lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="surface-panel p-5 sm:p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-mono uppercase tracking-[0.24em] text-muted-foreground">Current standing</p>
-              <h2 className="mt-2 font-display text-3xl text-foreground">{rank}</h2>
-            </div>
-            <div className="rounded-full border border-border bg-secondary p-3 text-primary">
-              <Sparkles className="h-4 w-4" />
-            </div>
-          </div>
-          <div className="mt-5 rounded-[1.5rem] border border-border bg-card/82 p-4">
+      <div className="grid gap-3 xl:grid-cols-[0.9fr_1.1fr]">
+        <DataCard className="p-4 sm:p-5">
+          <SectionHeader eyebrow="Standing" title="Progress with better gravity." detail="Rank should feel earned, readable, and slightly cultish in a premium way." action={<div className="icon-pill"><Sparkles className="h-4 w-4" /></div>} />
+          <div className="mt-4 rounded-[1rem] border border-border bg-card/82 p-4">
             <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-[0.22em] text-muted-foreground">
               <span>Progress to next rank</span>
               <span>{nextRank ? `${nextRank.min - stats.lichPoints} LP left` : "Maxed"}</span>
             </div>
-            <div className="mt-3 h-2 rounded-full bg-secondary">
-              <div className="h-full rounded-full" style={{ width: `${Math.max(0, Math.min(100, progress))}%`, background: "linear-gradient(90deg, var(--color-primary), color-mix(in oklab, var(--color-pearl) 40%, var(--color-primary)))", boxShadow: "var(--shadow-glow)" }} />
+            <div className="metric-track mt-3">
+              <div className="metric-bar" style={{ width: `${Math.max(0, Math.min(100, progress))}%` }} />
             </div>
           </div>
           <button onClick={unlockNext} disabled={stats.unlockedLessons >= 100} className="button-premium mt-5 w-full justify-center disabled:opacity-50">
             {stats.unlockedLessons >= 100 ? "Archive complete" : "Unlock next lesson"}
           </button>
-        </div>
+        </DataCard>
 
-        <div className="surface-panel p-5 sm:p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-[10px] font-mono uppercase tracking-[0.24em] text-muted-foreground">Lesson archive</p>
-              <h2 className="mt-2 font-display text-3xl text-foreground">Unlocked doctrine</h2>
-            </div>
-            <div className="rounded-full border border-border bg-secondary px-3 py-1 text-[10px] font-mono uppercase tracking-[0.22em] text-muted-foreground">
-              {stats.unlockedLessons}/100
-            </div>
-          </div>
-          <div className="mt-5 space-y-3">
+        <DataCard className="p-4 sm:p-5">
+          <SectionHeader eyebrow="Lesson archive" title="Useful doctrine" detail="Dry, quotable, and sharp enough to survive a screenshot." action={<div className="icon-pill"><BookOpenText className="h-4 w-4" /></div>} />
+          <div className="mt-4 space-y-3">
             {LESSONS.slice(0, 18).map((lesson, index) => {
               const unlocked = index < unlockedLessons.length;
               return (
-                <div key={index} className="rounded-[1.5rem] border border-border bg-card/82 p-4" style={{ opacity: unlocked ? 1 : 0.45 }}>
+                <div key={index} className="rounded-[1rem] border border-border bg-card/82 p-4" style={{ opacity: unlocked ? 1 : 0.45 }}>
                   <div className="flex gap-3">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-border bg-secondary text-foreground">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[0.9rem] border border-border bg-secondary text-foreground">
                       {unlocked ? <span className="font-mono text-sm">{String(index + 1).padStart(2, "0")}</span> : <LockKeyhole className="h-4 w-4" />}
                     </div>
                     <div>
                       <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-muted-foreground">Lesson {String(index + 1).padStart(2, "0")}</div>
-                      <p className="mt-2 text-sm leading-6 text-foreground">{unlocked ? lesson : "Still sealed in the archive. You have not yet earned this flavour of detachment."}</p>
+                      <p className="mt-2 text-sm leading-6 text-foreground">{unlocked ? lesson : "Still sealed. You have not yet earned this particular flavour of detachment."}</p>
                     </div>
                   </div>
                 </div>
               );
             })}
           </div>
-        </div>
-      </section>
+        </DataCard>
+      </div>
     </div>
   );
 }

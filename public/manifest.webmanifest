@@ -1,11 +1,11 @@
 {
   "name": "$OOO — Out of Office",
   "short_name": "$OOO",
-  "description": "A premium absurdist calendar for sacred breaks, strategic absence, and the 17:00 liberation bell.",
+  "description": "A pocket absurdist calendar for protected lunch, sarcastic reminders, and strategic absence with class.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#141317",
-  "theme_color": "#141317",
+  "background_color": "#17161c",
+  "theme_color": "#17161c",
   "icons": [
     { "src": "/ooo-icon.png", "sizes": "512x512", "type": "image/png" }
   ]
